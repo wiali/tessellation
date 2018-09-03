@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "meshio.hpp"
 #include <algorithm/complex_base.h>
 #include <algorithm/split_triangle.h>
@@ -29,11 +28,14 @@ void updateDataMask(CMeshO& mesh, int neededDataMask)
         mesh.face.EnableVFAdjacency();
         tri::UpdateTopology<CMeshO>::VertexFace(mesh);
     }
-
     if ((neededDataMask & MM_FACEMARK) != 0)
+    {
         mesh.face.EnableMark();
+    }
     if ((neededDataMask & MM_VERTTEXCOORD) != 0)
+    {
         mesh.vert.EnableTexCoord();
+    }
 }
 
 void UpdateBoxAndNormals(CMeshO& mesh)
@@ -56,7 +58,7 @@ public:
 
     GetClosestFace() {}
 
-    void init(CMeshO *_m)
+    void init(CMeshO* _m)
     {
         m = _m;
         if (m)
@@ -67,7 +69,7 @@ public:
         }
     }
 
-    CMeshO *m;
+    CMeshO* m;
 
     MetroMeshGrid unifGrid;
 
@@ -75,23 +77,19 @@ public:
 
     float dist_upper_bound;
 
-    CMeshO::FaceType * getFace(Point3f &p)
+    CMeshO::FaceType* getFace(Point3f& p)
     {
         assert(m);
         // the results
         Point3f closestPt;
         float dist = dist_upper_bound;
-        const CMeshO::CoordType &startPt = p;
-
+        const CMeshO::CoordType& startPt = p;
         // compute distance between startPt and the mesh S2
-        CMeshO::FaceType   *nearestF = 0;
+        CMeshO::FaceType*   nearestF = 0;
         tessellation::face::PointDistanceBaseFunctor<CMeshO::ScalarType> PDistFunct;
         dist = dist_upper_bound;
-
         nearestF = unifGrid.GetClosest(PDistFunct, markerFunctor, startPt, dist_upper_bound, dist, closestPt);
-
         //if (dist == dist_upper_bound) qDebug() << "Dist is = upper bound";
-
         return nearestF;
     }
 };
@@ -116,12 +114,10 @@ Point3f Barycentric(Point3f aV1, Point3f aV2, Point3f aV3, Point3f aP)
     float ac = a[0] * c[0] + a[1] * c[1] + a[2] * c[2];
     float bc = b[0] * c[0] + b[1] * c[1] + b[2] * c[2];
     float d = aLen * bLen - ab * ab;
-
     Point3f ret;
     ret[0] = (aLen * bc - ab * ac) / d;
     ret[1] = (bLen * ac - ab * bc) / d;
     ret[2] = 1.0f - ret[0] - ret[1];
-
     return ret;
 }
 
@@ -129,14 +125,12 @@ void updateUVs(CMeshO& mesh, CMeshO& mesh_old)
 {
     auto pGetClosestFace = new GetClosestFace();
     updateDataMask(mesh_old, MM_FACEMARK);
-    //set up the 
+    //set up the
     pGetClosestFace->init(&mesh_old);
-
     for (auto i = mesh.vert.begin(); i != mesh.vert.end(); i++)
     {
         float u = i->T().P()[0];
         float v = i->T().P()[1];
-
         //https://answers.unity.com/questions/1374972/calculate-uv-coordinates-based-on-known-vertices-a.html
         //if (math::isZero(u) && math::isZero(v))
         if (fabs(u) > 1 && fabs(v) > 1)
@@ -155,16 +149,12 @@ void updateUVs(CMeshO& mesh, CMeshO& mesh_old)
 static int copyMesh(CMeshO& mesh_src, CMeshO& mesh_dest)
 {
     //mesh_dest.vert.EnableTexCoord();
-
     mesh_dest.vert.EnableTexCoord();
-
     size_t nVertexs = mesh_src.vert.size();
     CMeshO::VertexIterator vi = tessellation::tri::Allocator<CMeshO>::AddVertices(mesh_dest, nVertexs);
-
     size_t nFaces = mesh_src.face.size();
     CMeshO::FaceIterator fi = tessellation::tri::Allocator<CMeshO>::AddFaces(mesh_dest, nFaces);
-
-    CMeshO::VertexPointer *ivp = new CMeshO::VertexPointer[nVertexs];
+    CMeshO::VertexPointer* ivp = new CMeshO::VertexPointer[nVertexs];
     for (int i = 0; i < nVertexs; ++i)
     {
         ivp[i] = &*vi;
@@ -174,8 +164,7 @@ static int copyMesh(CMeshO& mesh_src, CMeshO& mesh_dest)
         vi->N() = mesh_src.vert[i].N();
         ++vi;
     }
-
-    CMeshO::FacePointer *ifp = new CMeshO::FacePointer[nFaces];
+    CMeshO::FacePointer* ifp = new CMeshO::FacePointer[nFaces];
     for (int i = 0; i < nFaces; ++i)
     {
         size_t nIndex1 = tessellation::tri::Index(mesh_src, mesh_src.face[i].V(0));
@@ -185,72 +174,51 @@ static int copyMesh(CMeshO& mesh_src, CMeshO& mesh_dest)
         fi->V(0) = ivp[nIndex1];
         fi->V(1) = ivp[nIndex2];
         fi->V(2) = ivp[nIndex3];
-
         fi->V(0)->T().u() = mesh_src.vert[nIndex1].T().P()[0];
         fi->V(0)->T().v() = mesh_src.vert[nIndex1].T().P()[1];
         fi->V(0)->T().n() = 0;
-
         fi->V(1)->T().u() = mesh_src.vert[nIndex2].T().P()[0];
         fi->V(1)->T().v() = mesh_src.vert[nIndex2].T().P()[1];
         fi->V(1)->T().n() = 0;
-
         fi->V(2)->T().u() = mesh_src.vert[nIndex3].T().P()[0];
         fi->V(2)->T().v() = mesh_src.vert[nIndex3].T().P()[1];
         fi->V(2)->T().n() = 0;
-
         fi->V(0)->N().Import(mesh_src.vert[nIndex1].N());
         fi->V(1)->N().Import(mesh_src.vert[nIndex2].N());
         fi->V(2)->N().Import(mesh_src.vert[nIndex3].N());
-
         fi->N() = tri::TriangleNormal(*fi).Normalize();
-
         ++fi;
-
     }
-
     tri::Allocator<CMeshO>::CompactFaceVector(mesh_dest);
     tri::Allocator<CMeshO>::CompactVertexVector(mesh_dest);
     updateDataMask(mesh_dest, MM_FACEFACETOPO);
     tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh_dest);
-
     updateDataMask(mesh_dest, MM_VERTTEXCOORD);
     updateDataMask(mesh_dest, MM_VERTFACETOPO);
-
     return 0;
 }
 
 int main()
 {
     CMeshO mesh;
-
     CMeshO mesh_old;
-
     MeshSpace::MeshIO<MeshSpace::MeshFileType::OBJ>::loadMesh("agate.obj", mesh);
-
     copyMesh(mesh, mesh_old);
-
     tri::Allocator<CMeshO>::CompactFaceVector(mesh);
     tri::Allocator<CMeshO>::CompactVertexVector(mesh);
     updateDataMask(mesh, MM_FACEFACETOPO);
     tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh);
-
     updateDataMask(mesh, MM_VERTTEXCOORD);
-
     int iterations = 1;
     for (int i = 0; i < iterations; ++i)
     {
         updateDataMask(mesh, MM_VERTFACETOPO);
-
         RefineOddEven(mesh, tri::OddPointLoop<CMeshO>(mesh), tri::EvenPointLoop<CMeshO>(), 0.0);
     }
-
     UpdateBoxAndNormals(mesh);
-
     updateUVs(mesh, mesh_old);
-
     QImage imageHeight;
     imageHeight.load("Height.jpg");
-        
     int nHeightMapSize = 2048;
     float heightMapScale = 2.0;
     for (auto i = mesh.vert.begin(); i != mesh.vert.end(); i++)
@@ -258,22 +226,15 @@ int main()
         auto pt = i->P();
         auto uv = i->T().P();
         auto _normal = i->N();
-
         int _x = uv[0] * nHeightMapSize;
         int _y = uv[1] * nHeightMapSize;
-        
         float pixelValue = qRed(imageHeight.pixel(_x, _y)) / 255.0;
-
         float displacement = pixelValue;
         i->P() += _normal * displacement * heightMapScale;
     }
-
     UpdateBoxAndNormals(mesh);
-
     updateUVs(mesh, mesh_old);
-
     MeshSpace::MeshIO<MeshSpace::MeshFileType::OBJ>::writeMesh("A_dog.obj", mesh);
-
     return 0;
 }
 

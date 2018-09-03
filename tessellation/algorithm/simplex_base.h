@@ -6,7 +6,6 @@ namespace tessellation
     {
         struct AVertexType {};
         struct AFaceType {};
-
     };
 
     template<class T = float, int NMAX = 1>
@@ -16,21 +15,23 @@ namespace tessellation
         typedef Point2<T>  PointType;
         typedef T ScalarType;
 
-
     private:
         PointType _t[NMAX];
         short     _n[NMAX];
-    public:
 
+    public:
         TexCoord2(T u, T v)
         {
-            if (NMAX > 0) _n[0] = 0;
+            if (NMAX > 0)
+            {
+                _n[0] = 0;
+            }
             _t[0][0] = u;
             _t[0][1] = v;
         }
-        TexCoord2() {  }
+        TexCoord2() {}
 
-        inline short      &n()
+        inline short& n()
         {
             return _n[0];
         }
@@ -39,30 +40,56 @@ namespace tessellation
             return _n[0];
         }
 
-        inline Point2<T> &t()
+        inline Point2<T>& t()
         {
             return _t[0];
-        }        
+        }
         inline Point2<T> t() const
         {
             return _t[0];
         }
 
-        inline const PointType &P() const { return _t[0]; }
-        inline PointType &P() { return _t[0]; }
+        inline const PointType& P() const
+        {
+            return _t[0];
+        }
+        inline PointType& P()
+        {
+            return _t[0];
+        }
 
-        inline const PointType &P(const int i) const { assert(i > 0 && i < NMAX); return _t[i]; }
-        inline PointType &P(const int i) { assert(i > 0 && i < NMAX); return _t[i]; }
+        inline const PointType& P(const int i) const
+        {
+            assert(i > 0 && i < NMAX);
+            return _t[i];
+        }
+        inline PointType& P(const int i)
+        {
+            assert(i > 0 && i < NMAX);
+            return _t[i];
+        }
 
-        inline T & u() { return _t[0][0]; }
-        inline T & v() { return _t[0][1]; }
-        inline const T & u() const { return _t[0][0]; }
-        inline const T & v() const { return _t[0][1]; }
+        inline T& u()
+        {
+            return _t[0][0];
+        }
+        inline T& v()
+        {
+            return _t[0][1];
+        }
+        inline const T& u() const
+        {
+            return _t[0][0];
+        }
+        inline const T& v() const
+        {
+            return _t[0][1];
+        }
 
         enum { n_coords = NMAX };
     };
 
-    typedef TexCoord2<float>  TexCoord2f;
+    typedef TexCoord2<float> TexCoord2f;
 
     namespace vertex
     {
@@ -70,7 +97,7 @@ namespace tessellation
         {
         public:
             typedef int FlagType;
-            int &Flags()
+            int& Flags()
             {
                 assert(0);
                 static int dummyflags(0);
@@ -86,8 +113,9 @@ namespace tessellation
             }
 
             typedef tessellation::Point3f CoordType;
-            typedef CoordType::ScalarType      ScalarType;
-            CoordType &P()
+            typedef CoordType::ScalarType ScalarType;
+
+            CoordType& P()
             {
                 assert(0);
                 static CoordType coord(0, 0, 0);
@@ -110,7 +138,7 @@ namespace tessellation
             }
 
             typedef tessellation::Point3f NormalType;
-            NormalType &N()
+            NormalType& N()
             {
                 assert(0);
                 static NormalType dummy_normal(0, 0, 0);
@@ -132,7 +160,7 @@ namespace tessellation
             }
 
             typedef tessellation::TexCoord2<float, 1> TexCoordType;
-            TexCoordType &T()
+            TexCoordType& T()
             {
                 static TexCoordType dummy_texcoord;
                 assert(0);
@@ -153,7 +181,7 @@ namespace tessellation
                 return TT::VertexType::HasTexCoord();
             }
 
-            typename TT::FacePointer &VFp()
+            typename TT::FacePointer& VFp()
             {
                 static typename TT::FacePointer fp = 0;
                 assert(0);
@@ -165,7 +193,7 @@ namespace tessellation
                 assert(0);
                 return fp;
             }
-            int &VFi()
+            int& VFi()
             {
                 static int z = -1;
                 assert(0);
@@ -178,8 +206,16 @@ namespace tessellation
                 return z;
             }
 
-            int &VEi() { static int z = -1; return z; }
-            int cVEi() const { static int z = -1; return z; }
+            int& VEi()
+            {
+                static int z = -1;
+                return z;
+            }
+            int cVEi() const
+            {
+                static int z = -1;
+                return z;
+            }
 
             bool IsNull() const
             {
@@ -190,17 +226,27 @@ namespace tessellation
                 return false;
             }
 
-            bool IsVFInitialized() const { return static_cast<const typename TT::VertexType *>(this)->cVFi() != -1; }
-            void VFClear() {
-                if (IsVFInitialized()) {
+            bool IsVFInitialized() const
+            {
+                return static_cast<const typename TT::VertexType*>(this)->cVFi() != -1;
+            }
+            void VFClear()
+            {
+                if (IsVFInitialized())
+                {
                     static_cast<typename TT::VertexPointer>(this)->VFp() = 0;
                     static_cast<typename TT::VertexPointer>(this)->VFi() = -1;
                 }
             }
 
-            bool IsVEInitialized() const { return static_cast<const typename TT::VertexType *>(this)->cVEi() != -1; }
-            void VEClear() {
-                if (IsVEInitialized()) {
+            bool IsVEInitialized() const
+            {
+                return static_cast<const typename TT::VertexType*>(this)->cVEi() != -1;
+            }
+            void VEClear()
+            {
+                if (IsVEInitialized())
+                {
                     static_cast<typename TT::VertexPointer>(this)->VEi() = -1;
                 }
             }
@@ -208,34 +254,39 @@ namespace tessellation
             template < class RightValueType>
             void ImportData(const RightValueType& /*rVert*/) {}
 
-            static bool HasVEAdjacency() { return false; }
+            static bool HasVEAdjacency()
+            {
+                return false;
+            }
         };
 
         template <class A, class T> class Coord : public T
         {
         public:
             typedef A CoordType;
-            typedef typename A::ScalarType      ScalarType;
+            typedef typename A::ScalarType ScalarType;
 
-            inline const CoordType &P() const
+            inline const CoordType& P() const
             {
                 return _coord;
             }
 
-            inline       CoordType &P()
+            inline CoordType& P()
             {
                 return _coord;
             }
-
-            inline       CoordType cP() const
+            inline CoordType cP() const
             {
                 return _coord;
             }
 
             template < class RightValueType>
-            void ImportData(const RightValueType   &rVert)
+            void ImportData(const RightValueType& rVert)
             {
-                if (rVert.IsCoordEnabled()) P().Import(rVert.cP());
+                if (rVert.IsCoordEnabled())
+                {
+                    P().Import(rVert.cP());
+                }
                 T::ImportData(rVert);
             }
             static bool HasCoord()
@@ -247,8 +298,14 @@ namespace tessellation
             CoordType _coord;
         };
 
-        template <class T> class Coord3f : public Coord<Point3f, T> {
-        public:	static void Name(std::vector<std::string> & name) { name.push_back(std::string("Coord3f")); T::Name(name); }
+        template <class T> class Coord3f : public Coord<Point3f, T>
+        {
+        public:
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("Coord3f"));
+                T::Name(name);
+            }
         };
 
         template <class A, class T> class Normal : public T
@@ -256,24 +313,27 @@ namespace tessellation
         public:
             typedef A NormalType;
 
-            inline const NormalType &N() const
+            inline const NormalType& N() const
             {
                 return _norm;
             }
 
-            inline       NormalType &N()
+            inline NormalType& N()
             {
                 return _norm;
             }
 
-            inline       NormalType cN() const
+            inline NormalType cN() const
             {
                 return _norm;
             }
             template < class RightValueType>
-            void ImportData(const RightValueType   &rVert)
+            void ImportData(const RightValueType& rVert)
             {
-                if (rVert.IsNormalEnabled())  N().Import(rVert.cN());
+                if (rVert.IsNormalEnabled())
+                {
+                    N().Import(rVert.cN());
+                }
                 T::ImportData(rVert);
             }
             static bool HasNormal()
@@ -285,8 +345,14 @@ namespace tessellation
             NormalType _norm;
         };
 
-        template <class T> class Normal3f : public Normal<Point3f, T> {
-        public:	static void Name(std::vector<std::string> & name) { name.push_back(std::string("Normal3f")); T::Name(name); }
+        template <class T> class Normal3f : public Normal<Point3f, T>
+        {
+        public:
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("Normal3f"));
+                T::Name(name);
+            }
         };
 
         template <class A, class TT> class TexCoord : public TT
@@ -294,11 +360,11 @@ namespace tessellation
         public:
             typedef A TexCoordType;
 
-            const TexCoordType &T() const
+            const TexCoordType& T() const
             {
                 return _t;
             }
-            TexCoordType &T()
+            TexCoordType& T()
             {
                 return _t;
             }
@@ -307,16 +373,19 @@ namespace tessellation
                 return _t;
             }
             template < class RightValueType>
-            void ImportData(const RightValueType   &rVert)
+            void ImportData(const RightValueType& rVert)
             {
-                if (rVert.IsTexCoordEnabled())  T() = rVert.cT();
+                if (rVert.IsTexCoordEnabled())
+                {
+                    T() = rVert.cT();
+                }
                 TT::ImportData(rVert);
             }
             static bool HasTexCoord()
             {
                 return true;
             }
-            static void Name(std::vector<std::string> &name)
+            static void Name(std::vector<std::string>& name)
             {
                 name.push_back(std::string("TexCoord"));
                 TT::Name(name);
@@ -329,7 +398,7 @@ namespace tessellation
         template <class TT> class TexCoord2f : public TexCoord<TexCoord2<float, 1>, TT>
         {
         public:
-            static void Name(std::vector<std::string> &name)
+            static void Name(std::vector<std::string>& name)
             {
                 name.push_back(std::string("TexCoord2f"));
                 TT::Name(name);
@@ -344,32 +413,36 @@ namespace tessellation
                 _flags = 0;
             }
             typedef int FlagType;
-            inline const int &Flags() const
+            inline const int& Flags() const
             {
                 return _flags;
             }
-            inline       int &Flags()
+            inline int& Flags()
             {
                 return _flags;
             }
-            inline       int cFlags() const
+            inline int cFlags() const
             {
                 return _flags;
             }
 
-            static bool HasFlags() { return true; }
+            static bool HasFlags()
+            {
+                return true;
+            }
 
         private:
             int  _flags;
         };
 
         template <class VALUE_TYPE>
-        class vector_ocf : public std::vector<VALUE_TYPE> {
+        class vector_ocf : public std::vector<VALUE_TYPE>
+        {
             typedef std::vector<VALUE_TYPE> BaseType;
             typedef typename vector_ocf<VALUE_TYPE>::iterator ThisTypeIterator;
 
         public:
-            vector_ocf() :std::vector<VALUE_TYPE>()
+            vector_ocf() : std::vector<VALUE_TYPE>()
             {
                 MarkEnabled = false;
                 NormalEnabled = false;
@@ -377,14 +450,26 @@ namespace tessellation
                 VFAdjacencyEnabled = false;
             }
 
-            void push_back(const VALUE_TYPE & v)
+            void push_back(const VALUE_TYPE& v)
             {
                 BaseType::push_back(v);
                 BaseType::back()._ovp = this;
-                if (MarkEnabled)          MV.push_back(0);
-                if (NormalEnabled)        NV.push_back(typename VALUE_TYPE::NormalType());
-                if (TexCoordEnabled)      TV.push_back(typename VALUE_TYPE::TexCoordType());
-                if (VFAdjacencyEnabled)   AV.push_back(VFAdjType());
+                if (MarkEnabled)
+                {
+                    MV.push_back(0);
+                }
+                if (NormalEnabled)
+                {
+                    NV.push_back(typename VALUE_TYPE::NormalType());
+                }
+                if (TexCoordEnabled)
+                {
+                    TV.push_back(typename VALUE_TYPE::TexCoordType());
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.push_back(VFAdjType());
+                }
             }
 
             void pop_back();
@@ -393,88 +478,142 @@ namespace tessellation
             {
                 const size_t oldsize = BaseType::size();
                 BaseType::resize(_size);
-                if (oldsize < _size) {
+                if (oldsize < _size)
+                {
                     ThisTypeIterator firstnew = BaseType::begin();
                     advance(firstnew, oldsize);
                     _updateOVP(firstnew, (*this).end());
                 }
-                if (MarkEnabled)          MV.resize(_size);
-                if (NormalEnabled)        NV.resize(_size);
-                if (TexCoordEnabled)      TV.resize(_size);
-                if (VFAdjacencyEnabled)   AV.resize(_size, VFAdjType::Zero());
+                if (MarkEnabled)
+                {
+                    MV.resize(_size);
+                }
+                if (NormalEnabled)
+                {
+                    NV.resize(_size);
+                }
+                if (TexCoordEnabled)
+                {
+                    TV.resize(_size);
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.resize(_size, VFAdjType::Zero());
+                }
             }
 
             void reserve(size_t _size)
             {
                 BaseType::reserve(_size);
-                if (MarkEnabled)         MV.reserve(_size);
-                if (NormalEnabled)       NV.reserve(_size);
-                if (TexCoordEnabled)     TV.reserve(_size);
-                if (VFAdjacencyEnabled)  AV.reserve(_size);
+                if (MarkEnabled)
+                {
+                    MV.reserve(_size);
+                }
+                if (NormalEnabled)
+                {
+                    NV.reserve(_size);
+                }
+                if (TexCoordEnabled)
+                {
+                    TV.reserve(_size);
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.reserve(_size);
+                }
             }
 
             void _updateOVP(ThisTypeIterator lbegin, ThisTypeIterator lend)
             {
                 ThisTypeIterator vi;
                 for (vi = lbegin; vi != lend; ++vi)
+                {
                     (*vi)._ovp = this;
+                }
             }
 
-            bool IsMarkEnabled() const { return MarkEnabled; }
-            void EnableMark() {
+            bool IsMarkEnabled() const
+            {
+                return MarkEnabled;
+            }
+            void EnableMark()
+            {
                 assert(VALUE_TYPE::HasMarkOcf());
                 MarkEnabled = true;
                 MV.resize((*this).size(), 0);
             }
-            void DisableMark() {
+            void DisableMark()
+            {
                 assert(VALUE_TYPE::HasMarkOcf());
                 MarkEnabled = false;
                 MV.clear();
             }
 
-            bool IsNormalEnabled() const { return NormalEnabled; }
-            void EnableNormal() {
+            bool IsNormalEnabled() const
+            {
+                return NormalEnabled;
+            }
+            void EnableNormal()
+            {
                 assert(VALUE_TYPE::HasNormalOcf());
                 NormalEnabled = true;
                 NV.resize((*this).size());
             }
-            void DisableNormal() {
+            void DisableNormal()
+            {
                 assert(VALUE_TYPE::HasNormalOcf());
                 NormalEnabled = false;
                 NV.clear();
             }
 
-            bool IsVFAdjacencyEnabled() const { return VFAdjacencyEnabled; }
-            void EnableVFAdjacency() {
+            bool IsVFAdjacencyEnabled() const
+            {
+                return VFAdjacencyEnabled;
+            }
+            void EnableVFAdjacency()
+            {
                 assert(VALUE_TYPE::HasVFAdjacencyOcf());
                 VFAdjacencyEnabled = true;
                 AV.resize((*this).size(), VFAdjType::Zero());
             }
-            void DisableVFAdjacency() {
+            void DisableVFAdjacency()
+            {
                 assert(VALUE_TYPE::HasVFAdjacencyOcf());
                 VFAdjacencyEnabled = false;
                 AV.clear();
             }
 
-            bool IsTexCoordEnabled() const { return TexCoordEnabled; }
-            void EnableTexCoord() {
+            bool IsTexCoordEnabled() const
+            {
+                return TexCoordEnabled;
+            }
+            void EnableTexCoord()
+            {
                 assert(VALUE_TYPE::HasTexCoordOcf());
                 TexCoordEnabled = true;
                 TV.resize((*this).size());
             }
-            void DisableTexCoord() {
+            void DisableTexCoord()
+            {
                 assert(VALUE_TYPE::HasTexCoordOcf());
                 TexCoordEnabled = false;
                 TV.clear();
             }
 
-            struct VFAdjType {
-                VFAdjType() :_fp(0), _zp(-1) {}
-                VFAdjType(typename VALUE_TYPE::FacePointer fp, int zp) :_fp(fp), _zp(zp) {}
+            struct VFAdjType
+            {
+                VFAdjType() : _fp(0), _zp(-1) {}
+                VFAdjType(typename VALUE_TYPE::FacePointer fp, int zp) : _fp(fp), _zp(zp) {}
                 typename VALUE_TYPE::FacePointer _fp;
                 int _zp;
-                static VFAdjType Zero() { return VFAdjType(0, -1); }
-                bool IsNull() const { return (_zp == -1); }
+                static VFAdjType Zero()
+                {
+                    return VFAdjType(0, -1);
+                }
+                bool IsNull() const
+                {
+                    return (_zp == -1);
+                }
             };
 
         public:
@@ -489,100 +628,177 @@ namespace tessellation
             bool VFAdjacencyEnabled;
         };
 
-        template <class A, class TT> class TexCoordOcf : public TT {
+        template <class A, class TT> class TexCoordOcf : public TT
+        {
         public:
             typedef A TexCoordType;
-            const TexCoordType &T() const { assert((*this).Base().TexCoordEnabled); return (*this).Base().TV[(*this).Index()]; }
-            TexCoordType &T() { assert((*this).Base().TexCoordEnabled); return (*this).Base().TV[(*this).Index()]; }
-            TexCoordType cT() const { assert((*this).Base().TexCoordEnabled); return (*this).Base().TV[(*this).Index()]; }
+            const TexCoordType& T() const
+            {
+                assert((*this).Base().TexCoordEnabled);
+                return (*this).Base().TV[(*this).Index()];
+            }
+            TexCoordType& T()
+            {
+                assert((*this).Base().TexCoordEnabled);
+                return (*this).Base().TV[(*this).Index()];
+            }
+            TexCoordType cT() const
+            {
+                assert((*this).Base().TexCoordEnabled);
+                return (*this).Base().TV[(*this).Index()];
+            }
             template < class RightVertexType>
-            void ImportData(const RightVertexType & rightV)
+            void ImportData(const RightVertexType& rightV)
             {
                 if ((*this).IsTexCoordEnabled() && rightV.IsTexCoordEnabled())
+                {
                     T() = rightV.cT();
+                }
                 TT::ImportData(rightV);
             }
-            inline bool IsTexCoordEnabled()     const { return this->Base().IsTexCoordEnabled(); }
-            static bool HasTexCoord() { return true; }
-            static bool HasTexCoordOcf() { assert(!TT::HasTexCoordOcf()); return true; }
+            inline bool IsTexCoordEnabled() const
+            {
+                return this->Base().IsTexCoordEnabled();
+            }
+            static bool HasTexCoord()
+            {
+                return true;
+            }
+            static bool HasTexCoordOcf()
+            {
+                assert(!TT::HasTexCoordOcf());
+                return true;
+            }
         };
 
-        template <class T> class TexCoordfOcf : public TexCoordOcf<TexCoord2<float, 1>, T> {
-        public: static void Name(std::vector<std::string> & name) { name.push_back(std::string("TexCoordfOcf")); T::Name(name); }
-        };
-
-        template < class T> class InfoOcf : public T {
+        template <class T> class TexCoordfOcf : public TexCoordOcf<TexCoord2<float, 1>, T>
+        {
         public:
-            inline InfoOcf &operator=(const InfoOcf & /*other*/) {
-                assert(0); return *this;
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("TexCoordfOcf"));
+                T::Name(name);
+            }
+        };
+
+        template < class T> class InfoOcf : public T
+        {
+        public:
+            inline InfoOcf& operator=(const InfoOcf& /*other*/)
+            {
+                assert(0);
+                return *this;
             }
 
-            vector_ocf<typename T::VertexType> &Base() const { return *_ovp; }
+            vector_ocf<typename T::VertexType>& Base() const
+            {
+                return *_ovp;
+            }
 
-            inline int Index() const {
-                typename  T::VertexType const *tp = static_cast<typename T::VertexType const*>(this);
+            inline int Index() const
+            {
+                typename  T::VertexType const* tp = static_cast<typename T::VertexType const*>(this);
                 int tt2 = tp - &*(_ovp->begin());
                 return tt2;
             }
         public:
-            vector_ocf<typename T::VertexType> *_ovp;
+            vector_ocf<typename T::VertexType>* _ovp;
 
-            static bool HasNormalOcf() { return false; }
-            static bool HasMarkOcf() { return false; }
-            static bool HasTexCoordOcf() { return false; }
-            static bool HasVFAdjacencyOcf() { return false; }
+            static bool HasNormalOcf()
+            {
+                return false;
+            }
+            static bool HasMarkOcf()
+            {
+                return false;
+            }
+            static bool HasTexCoordOcf()
+            {
+                return false;
+            }
+            static bool HasVFAdjacencyOcf()
+            {
+                return false;
+            }
         };
 
-        template <class T> class VFAdjOcf : public T {
+        template <class T> class VFAdjOcf : public T
+        {
         public:
-            typename T::FacePointer &VFp() {
+            typename T::FacePointer& VFp()
+            {
                 assert((*this).Base().VFAdjacencyEnabled);
                 return (*this).Base().AV[(*this).Index()]._fp;
             }
-            typename T::FacePointer cVFp() const {
-                if (!(*this).Base().VFAdjacencyEnabled) return 0;
-                else return (*this).Base().AV[(*this).Index()]._fp;
+            typename T::FacePointer cVFp() const
+            {
+                if (!(*this).Base().VFAdjacencyEnabled)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (*this).Base().AV[(*this).Index()]._fp;
+                }
             }
 
-            int &VFi() {
+            int& VFi()
+            {
                 assert((*this).Base().VFAdjacencyEnabled);
                 return (*this).Base().AV[(*this).Index()]._zp;
             }
-            int cVFi() const {
-                if (!(*this).Base().VFAdjacencyEnabled) return -1;
+            int cVFi() const
+            {
+                if (!(*this).Base().VFAdjacencyEnabled)
+                {
+                    return -1;
+                }
                 return (*this).Base().AV[(*this).Index()]._zp;
             }
             template <class RightVertexType>
-            void ImportData(const RightVertexType & rightV)
+            void ImportData(const RightVertexType& rightV)
             {
                 T::ImportData(rightV);
             }
 
-            static bool HasVFAdjacency() { return true; }
-            static bool HasVFAdjacencyOcf() { return true; }
-            bool IsVFAdjacencyEnabled(const typename T::VertexType *vp) { return vp->Base().VFAdjacencyEnabled; }
+            static bool HasVFAdjacency()
+            {
+                return true;
+            }
+            static bool HasVFAdjacencyOcf()
+            {
+                return true;
+            }
+            bool IsVFAdjacencyEnabled(const typename T::VertexType* vp)
+            {
+                return vp->Base().VFAdjacencyEnabled;
+            }
 
-            static void Name(std::vector<std::string> & name) { name.push_back(std::string("VFAdjOcf")); T::Name(name); }
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("VFAdjOcf"));
+                T::Name(name);
+            }
         };
     }
 
     template < class UserTypes,
-        template <typename> class A, template <typename> class B,
-        template <typename> class C, template <typename> class D,
-        template <typename> class E, template <typename> class F>
+               template <typename> class A, template <typename> class B,
+               template <typename> class C, template <typename> class D,
+               template <typename> class E, template <typename> class F>
     class VertexArityMax : public Arity6<vertex::EmptyCore<UserTypes>, A, B, C, D, E, F>
     {
     public:
         enum
         {
-            DELETED = 0x0001,	
-            NOTREAD = 0x0002,	
-            NOTWRITE = 0x0004,	
-            MODIFIED = 0x0008,	
-            VISITED = 0x0010,	
-            SELECTED = 0x0020,	
-            BORDER = 0x0100,    
-            USER0 = 0x0200		
+            DELETED = 0x0001,
+            NOTREAD = 0x0002,
+            NOTWRITE = 0x0004,
+            MODIFIED = 0x0008,
+            VISITED = 0x0010,
+            SELECTED = 0x0020,
+            BORDER = 0x0100,
+            USER0 = 0x0200
         };
 
         bool IsD() const
@@ -672,7 +888,7 @@ namespace tessellation
             this->Flags() &= ~VISITED;
         }
 
-        static int &FirstUnusedBitFlag()
+        static int& FirstUnusedBitFlag()
         {
             static int b = USER0;
             return b;
@@ -712,7 +928,7 @@ namespace tessellation
         }
 
         template<class BoxType>
-        void GetBBox(BoxType &bb) const
+        void GetBBox(BoxType& bb) const
         {
             bb.Set(this->cP());
         }
@@ -720,9 +936,9 @@ namespace tessellation
 
 
     template < class UserTypes,
-        template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
-        template <typename> class C = DefaultDeriver, template <typename> class D = DefaultDeriver,
-        template <typename> class E = DefaultDeriver, template <typename> class F = DefaultDeriver >
+               template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
+               template <typename> class C = DefaultDeriver, template <typename> class D = DefaultDeriver,
+               template <typename> class E = DefaultDeriver, template <typename> class F = DefaultDeriver >
     class Vertex : public VertexArityMax<UserTypes, A, B, C, D, E, F>
     {
     public:
@@ -736,22 +952,22 @@ namespace tessellation
     public:
 
         template <class LeftF>
-        void ImportData(const LeftF &) {}
-        static void Name(std::vector<std::string> & /* name */) {}
+        void ImportData(const LeftF&) {}
+        static void Name(std::vector<std::string>& /* name */) {}
 
         inline int VN()  const
         {
             return 3;
         }
-        inline int Prev(const int &i) const
+        inline int Prev(const int& i) const
         {
             return (i + (3 - 1)) % 3;
         }
-        inline int Next(const int &i) const
+        inline int Next(const int& i) const
         {
             return (i + 1) % 3;
         }
-        inline void Alloc(const int &) {}
+        inline void Alloc(const int&) {}
         inline void Dealloc() {}
     };
 
@@ -762,24 +978,32 @@ namespace tessellation
         public:
             typedef tessellation::TexCoord2<float, 1> TexCoordType;
 
-            inline typename T::CoordType cP(const int) const { assert(0);		static typename T::CoordType coord(0, 0, 0); return coord; }
+            inline typename T::CoordType cP(const int) const
+            {
+                assert(0);
+                static typename T::CoordType coord(0, 0, 0);
+                return coord;
+            }
 
-            static bool HasMark() { return false; }
+            static bool HasMark()
+            {
+                return false;
+            }
 
-            TexCoordType &WT(const int)
+            TexCoordType& WT(const int)
             {
                 static TexCoordType dummy_texture;
                 assert(0);
                 return dummy_texture;
             }
-            TexCoordType const &cWT(const int) const
+            TexCoordType const& cWT(const int) const
             {
                 static TexCoordType dummy_texture;
                 return dummy_texture;
             }
 
             typedef int FlagType;
-            int &Flags()
+            int& Flags()
             {
                 static int dummyflags(0);
                 assert(0);
@@ -795,7 +1019,7 @@ namespace tessellation
             }
 
             typedef int VFAdjType;
-            typename T::FacePointer &VFp(int)
+            typename T::FacePointer& VFp(int)
             {
                 static typename T::FacePointer fp = 0;
                 assert(0);
@@ -807,7 +1031,7 @@ namespace tessellation
                 assert(0);
                 return fp;
             }
-            typename T::FacePointer &FFp(int)
+            typename T::FacePointer& FFp(int)
             {
                 static typename T::FacePointer fp = 0;
                 assert(0);
@@ -820,13 +1044,13 @@ namespace tessellation
                 return fp;
             }
 
-            char &VFi(int)
+            char& VFi(int)
             {
                 static char z = 0;
                 assert(0);
                 return z;
             }
-            char &FFi(int)
+            char& FFi(int)
             {
                 static char z = 0;
                 assert(0);
@@ -862,18 +1086,26 @@ namespace tessellation
                 return false;
             }
 
-            static bool HasPolyInfo() { return false; }
+            static bool HasPolyInfo()
+            {
+                return false;
+            }
 
-            bool IsVFInitialized(const int j) const { return  static_cast<const typename T::FaceType *>(this)->cVFi(j) != -1; }
+            bool IsVFInitialized(const int j) const
+            {
+                return  static_cast<const typename T::FaceType*>(this)->cVFi(j) != -1;
+            }
 
-            void VFClear(int j) {
-                if (IsVFInitialized(j)) {
+            void VFClear(int j)
+            {
+                if (IsVFInitialized(j))
+                {
                     static_cast<typename T::FacePointer>(this)->VFp(j) = 0;
                     static_cast<typename T::FacePointer>(this)->VFi(j) = -1;
                 }
             }
         };
-        
+
         template <class VALUE_TYPE>
         class vector_ocf : public std::vector<VALUE_TYPE>
         {
@@ -881,7 +1113,7 @@ namespace tessellation
             typedef typename vector_ocf<VALUE_TYPE>::iterator ThisTypeIterator;
 
         public:
-            vector_ocf() :std::vector<VALUE_TYPE>()
+            vector_ocf() : std::vector<VALUE_TYPE>()
             {
                 MarkEnabled = false;
                 NormalEnabled = false;
@@ -889,25 +1121,39 @@ namespace tessellation
                 FFAdjacencyEnabled = false;
             }
 
-            struct AdjTypePack {
+            struct AdjTypePack
+            {
                 typename VALUE_TYPE::FacePointer _fp[3];
                 char _zp[3];
 
-                AdjTypePack() {
+                AdjTypePack()
+                {
                     _fp[0] = 0;
                     _fp[1] = 0;
                     _fp[2] = 0;
                 }
             };
 
-            void push_back(const VALUE_TYPE & v)
+            void push_back(const VALUE_TYPE& v)
             {
                 BaseType::push_back(v);
                 BaseType::back()._ovp = this;
-                if (MarkEnabled)        MV.push_back(0);
-                if (NormalEnabled)      NV.push_back(typename VALUE_TYPE::NormalType());
-                if (VFAdjacencyEnabled) AV.push_back(AdjTypePack());
-                if (FFAdjacencyEnabled) AF.push_back(AdjTypePack());
+                if (MarkEnabled)
+                {
+                    MV.push_back(0);
+                }
+                if (NormalEnabled)
+                {
+                    NV.push_back(typename VALUE_TYPE::NormalType());
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.push_back(AdjTypePack());
+                }
+                if (FFAdjacencyEnabled)
+                {
+                    AF.push_back(AdjTypePack());
+                }
             }
             void pop_back();
 
@@ -915,86 +1161,136 @@ namespace tessellation
             {
                 size_t oldsize = BaseType::size();
                 BaseType::resize(_size);
-                if (oldsize < _size) {
+                if (oldsize < _size)
+                {
                     ThisTypeIterator firstnew = BaseType::begin();
                     advance(firstnew, oldsize);
                     _updateOVP(firstnew, (*this).end());
                 }
-                if (MarkEnabled)        MV.resize(_size);
-                if (VFAdjacencyEnabled) AV.resize(_size);
-                if (FFAdjacencyEnabled) AF.resize(_size);
-                if (NormalEnabled)      NV.resize(_size);
+                if (MarkEnabled)
+                {
+                    MV.resize(_size);
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.resize(_size);
+                }
+                if (FFAdjacencyEnabled)
+                {
+                    AF.resize(_size);
+                }
+                if (NormalEnabled)
+                {
+                    NV.resize(_size);
+                }
             }
             void reserve(size_t _size)
             {
                 BaseType::reserve(_size);
-
-                if (MarkEnabled)        MV.reserve(_size);
-                if (NormalEnabled)      NV.reserve(_size);
-                if (VFAdjacencyEnabled) AV.reserve(_size);
-                if (FFAdjacencyEnabled) AF.reserve(_size);
-
-                if (BaseType::empty()) return;
-
+                if (MarkEnabled)
+                {
+                    MV.reserve(_size);
+                }
+                if (NormalEnabled)
+                {
+                    NV.reserve(_size);
+                }
+                if (VFAdjacencyEnabled)
+                {
+                    AV.reserve(_size);
+                }
+                if (FFAdjacencyEnabled)
+                {
+                    AF.reserve(_size);
+                }
+                if (BaseType::empty())
+                {
+                    return;
+                }
                 ThisTypeIterator oldbegin = (*this).begin();
-                if (oldbegin != (*this).begin()) _updateOVP((*this).begin(), (*this).end());
+                if (oldbegin != (*this).begin())
+                {
+                    _updateOVP((*this).begin(), (*this).end());
+                }
             }
 
             void _updateOVP(ThisTypeIterator lbegin, ThisTypeIterator lend)
             {
                 ThisTypeIterator fi;
                 for (fi = lbegin; fi != lend; ++fi)
+                {
                     (*fi)._ovp = this;
+                }
             }
 
-            bool IsMarkEnabled() const { return MarkEnabled; }
-            void EnableMark() {
+            bool IsMarkEnabled() const
+            {
+                return MarkEnabled;
+            }
+            void EnableMark()
+            {
                 assert(VALUE_TYPE::HasMarkOcf());
                 MarkEnabled = true;
                 MV.resize((*this).size(), 0);
             }
 
-            void DisableMark() {
+            void DisableMark()
+            {
                 assert(VALUE_TYPE::HasMarkOcf());
                 MarkEnabled = false;
                 MV.clear();
             }
 
-            bool IsNormalEnabled() const { return NormalEnabled; }
-            void EnableNormal() {
+            bool IsNormalEnabled() const
+            {
+                return NormalEnabled;
+            }
+            void EnableNormal()
+            {
                 assert(VALUE_TYPE::HasNormalOcf());
                 NormalEnabled = true;
                 NV.resize((*this).size());
             }
 
-            void DisableNormal() {
+            void DisableNormal()
+            {
                 assert(VALUE_TYPE::HasNormalOcf());
                 NormalEnabled = false;
                 NV.clear();
             }
 
-            bool IsVFAdjacencyEnabled() const { return VFAdjacencyEnabled; }
-            void EnableVFAdjacency() {
+            bool IsVFAdjacencyEnabled() const
+            {
+                return VFAdjacencyEnabled;
+            }
+            void EnableVFAdjacency()
+            {
                 assert(VALUE_TYPE::HasVFAdjacencyOcf());
                 VFAdjacencyEnabled = true;
                 AV.resize((*this).size());
             }
 
-            void DisableVFAdjacency() {
+            void DisableVFAdjacency()
+            {
                 assert(VALUE_TYPE::HasVFAdjacencyOcf());
                 VFAdjacencyEnabled = false;
                 AV.clear();
             }
 
 
-            bool IsFFAdjacencyEnabled() const { return FFAdjacencyEnabled; }
-            void EnableFFAdjacency() {
+            bool IsFFAdjacencyEnabled() const
+            {
+                return FFAdjacencyEnabled;
+            }
+            void EnableFFAdjacency()
+            {
                 assert(VALUE_TYPE::HasFFAdjacencyOcf());
                 FFAdjacencyEnabled = true;
                 AF.resize((*this).size());
             }
 
-            void DisableFFAdjacency() {
+            void DisableFFAdjacency()
+            {
                 assert(VALUE_TYPE::HasFFAdjacencyOcf());
                 FFAdjacencyEnabled = false;
                 AF.clear();
@@ -1012,154 +1308,289 @@ namespace tessellation
             bool FFAdjacencyEnabled;
         };
 
-        template < class T> class InfoOcf : public T {
+        template < class T> class InfoOcf : public T
+        {
         public:
-            inline InfoOcf &operator=(const InfoOcf & /*other*/) {
-                assert(0); return *this;
+            inline InfoOcf& operator=(const InfoOcf& /*other*/)
+            {
+                assert(0);
+                return *this;
             }
 
-            vector_ocf<typename T::FaceType> &Base() const
+            vector_ocf<typename T::FaceType>& Base() const
             {
                 return *_ovp;
             }
 
             template <class RightFaceType>
-            void ImportData(const RightFaceType & rightF) { T::ImportData(rightF); }
+            void ImportData(const RightFaceType& rightF)
+            {
+                T::ImportData(rightF);
+            }
 
-            static bool HasMarkOcf() { return false; }
-            static bool HasNormalOcf() { return false; }
-            static bool HasFFAdjacencyOcf() { return false; }
-            static bool HasVFAdjacencyOcf() { return false; }
+            static bool HasMarkOcf()
+            {
+                return false;
+            }
+            static bool HasNormalOcf()
+            {
+                return false;
+            }
+            static bool HasFFAdjacencyOcf()
+            {
+                return false;
+            }
+            static bool HasVFAdjacencyOcf()
+            {
+                return false;
+            }
 
 
-            inline size_t Index() const {
-                typename T::FaceType const *tp = static_cast<typename T::FaceType const *>(this);
+            inline size_t Index() const
+            {
+                typename T::FaceType const* tp = static_cast<typename T::FaceType const*>(this);
                 size_t tt2 = tp - &*(_ovp->begin());
                 return tt2;
             }
         public:
-            vector_ocf<typename T::FaceType> *_ovp;
+            vector_ocf<typename T::FaceType>* _ovp;
         };
 
         template < class FaceType >
-        bool FaceVectorHasVFAdjacency(const face::vector_ocf<FaceType> &fv)
+        bool FaceVectorHasVFAdjacency(const face::vector_ocf<FaceType>& fv)
         {
-            if (FaceType::HasVFAdjacencyOcf()) return fv.IsVFAdjacencyEnabled();
-            else return FaceType::HasVFAdjacency();
+            if (FaceType::HasVFAdjacencyOcf())
+            {
+                return fv.IsVFAdjacencyEnabled();
+            }
+            else
+            {
+                return FaceType::HasVFAdjacency();
+            }
         }
         template < class FaceType >
-        bool FaceVectorHasFFAdjacency(const face::vector_ocf<FaceType> &fv)
+        bool FaceVectorHasFFAdjacency(const face::vector_ocf<FaceType>& fv)
         {
-            if (FaceType::HasFFAdjacencyOcf()) return fv.IsFFAdjacencyEnabled();
-            else return FaceType::HasFFAdjacency();
+            if (FaceType::HasFFAdjacencyOcf())
+            {
+                return fv.IsFFAdjacencyEnabled();
+            }
+            else
+            {
+                return FaceType::HasFFAdjacency();
+            }
         }
 
-        template <class T> class VFAdjOcf : public T {
+        template <class T> class VFAdjOcf : public T
+        {
         public:
-            typename T::FacePointer &VFp(const int j) {
+            typename T::FacePointer& VFp(const int j)
+            {
                 assert((*this).Base().VFAdjacencyEnabled);
                 return (*this).Base().AV[(*this).Index()]._fp[j];
             }
 
-            typename T::FacePointer cVFp(const int j) const {
-                if (!(*this).Base().VFAdjacencyEnabled) return 0;
-                else return (*this).Base().AV[(*this).Index()]._fp[j];
+            typename T::FacePointer cVFp(const int j) const
+            {
+                if (!(*this).Base().VFAdjacencyEnabled)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (*this).Base().AV[(*this).Index()]._fp[j];
+                }
             }
 
-            char &VFi(const int j) {
+            char& VFi(const int j)
+            {
                 assert((*this).Base().VFAdjacencyEnabled);
                 return (*this).Base().AV[(*this).Index()]._zp[j];
             }
 
-            char cVFi(const int j) const {
+            char cVFi(const int j) const
+            {
                 assert((*this).Base().VFAdjacencyEnabled);
                 return (*this).Base().AV[(*this).Index()]._zp[j];
             }
 
             template <class RightFaceType>
-            void ImportData(const RightFaceType & rightF) {
+            void ImportData(const RightFaceType& rightF)
+            {
                 T::ImportData(rightF);
             }
-            static bool HasVFAdjacency() { return true; }
-            static bool HasVFAdjacencyOcf() { return true; }
-
-        private:
+            static bool HasVFAdjacency()
+            {
+                return true;
+            }
+            static bool HasVFAdjacencyOcf()
+            {
+                return true;
+            }
         };
 
-        template <class T> class FFAdjOcf : public T {
+        template <class T> class FFAdjOcf : public T
+        {
         public:
-            typename T::FacePointer &FFp(const int j) {
+            typename T::FacePointer& FFp(const int j)
+            {
                 assert((*this).Base().FFAdjacencyEnabled);
                 return (*this).Base().AF[(*this).Index()]._fp[j];
             }
 
-            typename T::FacePointer cFFp(const int j) const {
-                if (!(*this).Base().FFAdjacencyEnabled) return 0;
-                else return (*this).Base().AF[(*this).Index()]._fp[j];
+            typename T::FacePointer cFFp(const int j) const
+            {
+                if (!(*this).Base().FFAdjacencyEnabled)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return (*this).Base().AF[(*this).Index()]._fp[j];
+                }
             }
 
-            char &FFi(const int j) {
+            char& FFi(const int j)
+            {
                 assert((*this).Base().FFAdjacencyEnabled);
                 return (*this).Base().AF[(*this).Index()]._zp[j];
             }
-            char cFFi(const int j) const {
+            char cFFi(const int j) const
+            {
                 assert((*this).Base().FFAdjacencyEnabled);
                 return (*this).Base().AF[(*this).Index()]._zp[j];
             }
 
-            typename T::FacePointer  &FFp1(const int j) { return FFp((j + 1) % 3); }
-            typename T::FacePointer  &FFp2(const int j) { return FFp((j + 2) % 3); }
-            typename T::FacePointer  cFFp1(const int j) const { return FFp((j + 1) % 3); }
-            typename T::FacePointer  cFFp2(const int j) const { return FFp((j + 2) % 3); }
+            typename T::FacePointer&  FFp1(const int j)
+            {
+                return FFp((j + 1) % 3);
+            }
+            typename T::FacePointer&  FFp2(const int j)
+            {
+                return FFp((j + 2) % 3);
+            }
+            typename T::FacePointer  cFFp1(const int j) const
+            {
+                return FFp((j + 1) % 3);
+            }
+            typename T::FacePointer  cFFp2(const int j) const
+            {
+                return FFp((j + 2) % 3);
+            }
 
-            typename T::FacePointer  &Neigh(const int j) { return FFp(j); }
-            typename T::FacePointer  cNeigh(const int j) const { return cFFp(j); }
-            unsigned int SizeNeigh() { return 3; }
+            typename T::FacePointer&  Neigh(const int j)
+            {
+                return FFp(j);
+            }
+            typename T::FacePointer  cNeigh(const int j) const
+            {
+                return cFFp(j);
+            }
+            unsigned int SizeNeigh()
+            {
+                return 3;
+            }
 
             template <class RightFaceType>
-            void ImportData(const RightFaceType & rightF) {
+            void ImportData(const RightFaceType& rightF)
+            {
                 T::ImportData(rightF);
             }
-            static bool HasFFAdjacency() { return true; }
-            static bool HasFFAdjacencyOcf() { return true; }
+            static bool HasFFAdjacency()
+            {
+                return true;
+            }
+            static bool HasFFAdjacencyOcf()
+            {
+                return true;
+            }
         };
 
-        template <class A, class T> class NormalAbs : public T {
+        template <class A, class T> class NormalAbs : public T
+        {
         public:
             typedef A NormalType;
-            inline NormalType &N() { return _norm; }
-            inline NormalType cN() const { return _norm; }
+            inline NormalType& N()
+            {
+                return _norm;
+            }
+            inline NormalType cN() const
+            {
+                return _norm;
+            }
 
-            inline void Alloc(const int & ns) { T::Alloc(ns); }
-            inline void Dealloc() { T::Dealloc(); }
-            static bool HasNormal() { return true; }
-            static void Name(std::vector<std::string> & name) { name.push_back(std::string("NormalAbs")); T::Name(name); }
+            inline void Alloc(const int& ns)
+            {
+                T::Alloc(ns);
+            }
+            inline void Dealloc()
+            {
+                T::Dealloc();
+            }
+            static bool HasNormal()
+            {
+                return true;
+            }
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("NormalAbs"));
+                T::Name(name);
+            }
 
         private:
             NormalType _norm;
         };
 
-        template <class T> class Normal3f : public NormalAbs<tessellation::Point3f, T> {
-        public:  static void Name(std::vector<std::string> & name) { name.push_back(std::string("Normal3f")); T::Name(name); }
-        };
-        
-
-        template <class T> class BitFlags : public T {
+        template <class T> class Normal3f : public NormalAbs<tessellation::Point3f, T>
+        {
         public:
-            BitFlags() :_flags(0) {}
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("Normal3f"));
+                T::Name(name);
+            }
+        };
+
+
+        template <class T> class BitFlags : public T
+        {
+        public:
+            BitFlags() : _flags(0) {}
             typedef int FlagType;
-            int &Flags() { return _flags; }
-            int cFlags() const { return _flags; }
+            int& Flags()
+            {
+                return _flags;
+            }
+            int cFlags() const
+            {
+                return _flags;
+            }
             template <class RightValueType>
-            void ImportData(const RightValueType & rightF) {
+            void ImportData(const RightValueType& rightF)
+            {
                 if (RightValueType::HasFlags())
+                {
                     Flags() = rightF.cFlags();
+                }
                 T::ImportData(rightF);
             }
-            inline void Alloc(const int & ns) { T::Alloc(ns); }
-            inline void Dealloc() { T::Dealloc(); }
-            static bool HasFlags() { return true; }
-            static void Name(std::vector<std::string> & name) { name.push_back(std::string("BitFlags")); T::Name(name); }
+            inline void Alloc(const int& ns)
+            {
+                T::Alloc(ns);
+            }
+            inline void Dealloc()
+            {
+                T::Dealloc();
+            }
+            static bool HasFlags()
+            {
+                return true;
+            }
+            static void Name(std::vector<std::string>& name)
+            {
+                name.push_back(std::string("BitFlags"));
+                T::Name(name);
+            }
 
         private:
             int  _flags;
@@ -1178,34 +1609,38 @@ namespace tessellation
                 v[2] = 0;
             }
 
-            inline CoordType cP(const int j) const { assert(j >= 0 && j < 3);		return v[j]->cP(); }
+            inline CoordType cP(const int j) const
+            {
+                assert(j >= 0 && j < 3);
+                return v[j]->cP();
+            }
 
-            inline typename T::VertexType*&V(const int j)
+            inline typename T::VertexType*& V(const int j)
             {
                 assert(j >= 0 && j < 3);
                 return v[j];
             }
-            inline typename T::VertexType *cV(const int j) const
+            inline typename T::VertexType* cV(const int j) const
             {
                 assert(j >= 0 && j < 3);
                 return v[j];
             }
 
-            inline typename T::VertexType *&V0(const int j)
+            inline typename T::VertexType*& V0(const int j)
             {
                 return V(j);
             }
-            inline typename T::VertexType *&V1(const int j)
+            inline typename T::VertexType*& V1(const int j)
             {
                 return V((j + 1) % 3);
             }
-            inline typename T::VertexType *&V2(const int j)
+            inline typename T::VertexType*& V2(const int j)
             {
                 return V((j + 2) % 3);
             }
 
         private:
-            typename T::VertexType *v[3];
+            typename T::VertexType* v[3];
         };
 
         template <class FaceType>
@@ -1215,26 +1650,26 @@ namespace tessellation
             typedef typename FaceType::VertexType VertexType;
             typedef Pos<FaceType> PosType;
             typedef typename VertexType::ScalarType ScalarType;
-            typename FaceType::FaceType *f;
+            typename FaceType::FaceType* f;
 
             int z;
-            VertexType *v;
+            VertexType* v;
 
             Pos() : f(0), z(-1), v(0) {}
-            Pos(FaceType *const fp, int const zp, VertexType *const vp)
+            Pos(FaceType* const fp, int const zp, VertexType* const vp)
             {
                 f = fp;
                 z = zp;
                 v = vp;
                 assert((vp == fp->V0(zp)) || (vp == fp->V1(zp)));
             }
-            Pos(FaceType *const fp, int const zp)
+            Pos(FaceType* const fp, int const zp)
             {
                 f = fp;
                 z = zp;
                 v = f->V(zp);
             }
-            Pos(FaceType *const fp, VertexType *const vp)
+            Pos(FaceType* const fp, VertexType* const vp)
             {
                 f = fp;
                 v = vp;
@@ -1246,45 +1681,45 @@ namespace tessellation
                     }
             }
 
-            VertexType  *&V()
+            VertexType*& V()
             {
                 return v;
             }
-            int          &E()
+            int& E()
             {
                 return z;
             }
-            FaceType    *&F()
+            FaceType*& F()
             {
                 return f;
             }
 
-            VertexType *V() const
+            VertexType* V() const
             {
                 return v;
             }
-            int          E() const
+            int E() const
             {
                 return z;
             }
-            FaceType    *F() const
+            FaceType* F() const
             {
                 return f;
             }
 
-            inline bool operator == (PosType const &p) const
+            inline bool operator == (PosType const& p) const
             {
                 return (f == p.f && z == p.z && v == p.v);
             }
 
-            inline bool operator != (PosType const &p) const
+            inline bool operator != (PosType const& p) const
             {
                 return (f != p.f || z != p.z || v != p.v);
             }
 
             void NextF()
             {
-                FaceType *t = f;
+                FaceType* t = f;
                 f = t->FFp(z);
                 z = t->FFi(z);
             }
@@ -1300,8 +1735,14 @@ namespace tessellation
             void FlipE()
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z + 0) % f->VN()) == v));
-                if (f->V(f->Next(z)) == v) z = f->Next(z);
-                else z = f->Prev(z);
+                if (f->V(f->Next(z)) == v)
+                {
+                    z = f->Next(z);
+                }
+                else
+                {
+                    z = f->Prev(z);
+                }
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z)) == v));
             }
 
@@ -1309,7 +1750,7 @@ namespace tessellation
             {
                 assert(f->FFp(z)->FFp(f->FFi(z)) == f);
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z)) == v));
-                FaceType *nf = f->FFp(z);
+                FaceType* nf = f->FFp(z);
                 int nz = f->FFi(z);
                 assert(nf->V(nf->Prev(nz)) != v && (nf->V(nf->Next(nz)) == v || nf->V((nz)) == v));
                 f = nf;
@@ -1320,25 +1761,33 @@ namespace tessellation
             void FlipV()
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
-
                 if (f->V(f->Next(z)) == v)
+                {
                     v = f->V(z);
+                }
                 else
+                {
                     v = f->V(f->Next(z));
-
+                }
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
             }
 
-            VertexType *VFlip() const
+            VertexType* VFlip() const
             {
                 assert(f->cV(f->Prev(z)) != v && (f->cV(f->Next(z)) == v || f->cV(z) == v));
-                if (f->cV(f->Next(z)) == v)	return f->cV(z);
-                else			return f->cV(f->Next(z));
+                if (f->cV(f->Next(z)) == v)
+                {
+                    return f->cV(z);
+                }
+                else
+                {
+                    return f->cV(f->Next(z));
+                }
             }
 
-            FaceType *FFlip() const
+            FaceType* FFlip() const
             {
-                FaceType *nf = f->FFp(z);
+                FaceType* nf = f->FFp(z);
                 return nf;
             }
 
@@ -1346,15 +1795,12 @@ namespace tessellation
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
                 assert(f->FFp(z) == f);
-
                 do
                 {
                     NextE();
                 }
                 while (!IsBorder());
-
                 assert(IsBorder() && (f->V(z) == v || f->V(f->Next(z)) == v));
-
                 FlipV();
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
                 assert(f->FFp(z) == f);
@@ -1367,47 +1813,71 @@ namespace tessellation
         };
 
         template <class FaceType>
-        inline bool IsBorder(FaceType const &f, const int j)
+        inline bool IsBorder(FaceType const& f, const int j)
         {
             if (FaceType::HasFFAdjacency())
+            {
                 return f.cFFp(j) == &f;
-
+            }
             assert(0);
             return true;
         }
 
-        template <class T> class MarkOcf : public T {
+        template <class T> class MarkOcf : public T
+        {
         public:
-            inline int &IMark() {
+            inline int& IMark()
+            {
                 assert((*this).Base().MarkEnabled);
                 return (*this).Base().MV[(*this).Index()];
             }
-            inline int cIMark() const {
+            inline int cIMark() const
+            {
                 assert((*this).Base().MarkEnabled);
                 return (*this).Base().MV[(*this).Index()];
             }
 
             template <class RightFaceType>
-            void ImportData(const RightFaceType & rightF) {
+            void ImportData(const RightFaceType& rightF)
+            {
                 if ((*this).IsMarkEnabled() && rightF.IsMarkEnabled())
+                {
                     IMark() = rightF.cIMark();
+                }
                 T::ImportData(rightF);
             }
-            inline bool IsMarkEnabled()          const { return this->Base().IsMarkEnabled(); }
-            static bool HasMark() { return true; }
-            static bool HasMarkOcf() { return true; }
-            inline void InitIMark() { IMark() = 0; }
+            inline bool IsMarkEnabled() const
+            {
+                return this->Base().IsMarkEnabled();
+            }
+            static bool HasMark()
+            {
+                return true;
+            }
+            static bool HasMarkOcf()
+            {
+                return true;
+            }
+            inline void InitIMark()
+            {
+                IMark() = 0;
+            }
         };
 
         template <class S>
-        class PointDistanceBaseFunctor {
+        class PointDistanceBaseFunctor
+        {
         public:
             typedef S ScalarType;
             typedef Point3<ScalarType> QueryType;
 
-            static inline const Point3<ScalarType> & Pos(const Point3<ScalarType> & qt) { return qt; }
+            static inline const Point3<ScalarType>& Pos(const Point3<ScalarType>& qt)
+            {
+                return qt;
+            }
             template <class FACETYPE, class SCALARTYPE>
-            inline bool operator () (const FACETYPE & f, const Point3<SCALARTYPE> & p, SCALARTYPE & minDist, Point3<SCALARTYPE> & q) {
+            inline bool operator () (const FACETYPE& f, const Point3<SCALARTYPE>& p, SCALARTYPE& minDist, Point3<SCALARTYPE>& q)
+            {
                 const Point3<typename FACETYPE::ScalarType> fp = Point3<typename FACETYPE::ScalarType>::Construct(p);
                 Point3<typename FACETYPE::ScalarType> fq;
                 typename FACETYPE::ScalarType md = (typename FACETYPE::ScalarType)(minDist);
@@ -1419,14 +1889,10 @@ namespace tessellation
         };
 
         template <class FaceType>
-        bool PointDistanceBase(
-            const FaceType &f,	
-            const tessellation::Point3<typename FaceType::ScalarType> & q,
-            typename FaceType::ScalarType & dist,
-            tessellation::Point3<typename FaceType::ScalarType> & p)
+        bool PointDistanceBase( const FaceType& f, const tessellation::Point3<typename FaceType::ScalarType>& q,
+            typename FaceType::ScalarType& dist, tessellation::Point3<typename FaceType::ScalarType>& p)
         {
             typedef typename FaceType::ScalarType ScalarType;
-
             if (f.cN() == Point3<ScalarType>(0, 0, 0))
             {
                 Box3<ScalarType> bb;
@@ -1435,164 +1901,291 @@ namespace tessellation
                 Point3<ScalarType> closest;
                 ScalarType d;
                 if (bb.Diag() > 0)
+                {
                     tessellation::SegmentPointDistance<ScalarType>(degenTri, q, closest, d);
+                }
                 else
                 {
                     closest = bb.min;
                     d = Distance(q, closest);
                 }
-                if (d > dist) return false;
+                if (d > dist)
+                {
+                    return false;
+                }
                 dist = d;
                 p = closest;
                 assert(!math::IsNAN(dist));
                 return true;
             }
-
             Plane3<ScalarType, true> fPlane;
             fPlane.Init(f.cP(0), f.cN());
             const ScalarType EPS = ScalarType(0.000001);
             ScalarType b, b0, b1, b2;
-
             ScalarType d = SignedDistancePlanePoint(fPlane, q);
             if (d > dist || d < -dist)
+            {
                 return false;
-
-            p = q - fPlane.Direction()*d;
-
+            }
+            p = q - fPlane.Direction() * d;
             Point3<ScalarType> fEdge[3];
-            fEdge[0] = f.cP(1); fEdge[0] -= f.cP(0);
-            fEdge[1] = f.cP(2); fEdge[1] -= f.cP(1);
-            fEdge[2] = f.cP(0); fEdge[2] -= f.cP(2);
-
-
+            fEdge[0] = f.cP(1);
+            fEdge[0] -= f.cP(0);
+            fEdge[1] = f.cP(2);
+            fEdge[1] -= f.cP(1);
+            fEdge[2] = f.cP(0);
+            fEdge[2] -= f.cP(2);
             int bestAxis;
             if (fabs(f.cN()[0]) > fabs(f.cN()[1]))
             {
-                if (fabs(f.cN()[0]) > fabs(f.cN()[2])) bestAxis = 0;
-                else bestAxis = 2;
+                if (fabs(f.cN()[0]) > fabs(f.cN()[2]))
+                {
+                    bestAxis = 0;
+                }
+                else
+                {
+                    bestAxis = 2;
+                }
             }
-            else {
-                if (fabs(f.cN()[1]) > fabs(f.cN()[2])) bestAxis = 1;
-                else bestAxis = 2;
+            else
+            {
+                if (fabs(f.cN()[1]) > fabs(f.cN()[2]))
+                {
+                    bestAxis = 1;
+                }
+                else
+                {
+                    bestAxis = 2;
+                }
             }
-
             ScalarType scaleFactor;
-
             switch (bestAxis)
             {
             case 0:
                 scaleFactor = 1 / fPlane.Direction()[0];
-                fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
-
+                fEdge[0] *= scaleFactor;
+                fEdge[1] *= scaleFactor;
+                fEdge[2] *= scaleFactor;
                 b0 = fEdge[1][1] * (p[2] - f.cP(1)[2]) - fEdge[1][2] * (p[1] - f.cP(1)[1]);
                 if (b0 <= 0)
                 {
                     b0 = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    if (dist > b0) { dist = b0; return true; }
-                    else return false;
+                    if (dist > b0)
+                    {
+                        dist = b0;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b1 = fEdge[2][1] * (p[2] - f.cP(2)[2]) - fEdge[2][2] * (p[1] - f.cP(2)[1]);
                 if (b1 <= 0)
                 {
                     b1 = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    if (dist > b1) { dist = b1; return true; }
-                    else return false;
+                    if (dist > b1)
+                    {
+                        dist = b1;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b2 = fEdge[0][1] * (p[2] - f.cP(0)[2]) - fEdge[0][2] * (p[1] - f.cP(0)[1]);
                 if (b2 <= 0)
                 {
                     b2 = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
-                    if (dist > b2) { dist = b2; return true; }
-                    else return false;
+                    if (dist > b2)
+                    {
+                        dist = b2;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-
-                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS*DoubleArea(f))
+                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS * DoubleArea(f))
                 {
                     ScalarType bt;
-                    if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-                    if (dist > bt) { dist = bt; return true; }
-                    else return false;
+                    if (b == b0)
+                    {
+                        bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
+                    }
+                    else if (b == b1)
+                    {
+                        bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
+                    }
+                    else
+                    {
+                        assert(b == b2);
+                        bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
+                    }
+                    if (dist > bt)
+                    {
+                        dist = bt;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 break;
-
             case 1:
                 scaleFactor = 1 / fPlane.Direction()[1];
-                fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
-
+                fEdge[0] *= scaleFactor;
+                fEdge[1] *= scaleFactor;
+                fEdge[2] *= scaleFactor;
                 b0 = fEdge[1][2] * (p[0] - f.cP(1)[0]) - fEdge[1][0] * (p[2] - f.cP(1)[2]);
                 if (b0 <= 0)
                 {
                     b0 = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    if (dist > b0) { dist = b0; return true; }
-                    else return false;
+                    if (dist > b0)
+                    {
+                        dist = b0;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b1 = fEdge[2][2] * (p[0] - f.cP(2)[0]) - fEdge[2][0] * (p[2] - f.cP(2)[2]);
                 if (b1 <= 0)
                 {
                     b1 = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    if (dist > b1) { dist = b1; return true; }
-                    else return false;
+                    if (dist > b1)
+                    {
+                        dist = b1;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b2 = fEdge[0][2] * (p[0] - f.cP(0)[0]) - fEdge[0][0] * (p[2] - f.cP(0)[2]);
                 if (b2 <= 0)
                 {
                     b2 = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
-                    if (dist > b2) { dist = b2; return true; }
-                    else return false;
+                    if (dist > b2)
+                    {
+                        dist = b2;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS*DoubleArea(f))
+                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS * DoubleArea(f))
                 {
                     ScalarType bt;
-                    if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-                    if (dist > bt) { dist = bt; return true; }
-                    else return false;
+                    if (b == b0)
+                    {
+                        bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
+                    }
+                    else if (b == b1)
+                    {
+                        bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
+                    }
+                    else
+                    {
+                        assert(b == b2);
+                        bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
+                    }
+                    if (dist > bt)
+                    {
+                        dist = bt;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 break;
-
             case 2:
                 scaleFactor = 1 / fPlane.Direction()[2];
-                fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
-
+                fEdge[0] *= scaleFactor;
+                fEdge[1] *= scaleFactor;
+                fEdge[2] *= scaleFactor;
                 b0 = fEdge[1][0] * (p[1] - f.cP(1)[1]) - fEdge[1][1] * (p[0] - f.cP(1)[0]);
                 if (b0 <= 0)
                 {
                     b0 = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    if (dist > b0) { dist = b0; return true; }
-                    else return false;
+                    if (dist > b0)
+                    {
+                        dist = b0;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b1 = fEdge[2][0] * (p[1] - f.cP(2)[1]) - fEdge[2][1] * (p[0] - f.cP(2)[0]);
                 if (b1 <= 0)
                 {
                     b1 = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    if (dist > b1) { dist = b1; return true; }
-                    else return false;
+                    if (dist > b1)
+                    {
+                        dist = b1;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 b2 = fEdge[0][0] * (p[1] - f.cP(0)[1]) - fEdge[0][1] * (p[0] - f.cP(0)[0]);
                 if (b2 <= 0)
                 {
                     b2 = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
-                    if (dist > b2) { dist = b2; return true; }
-                    else return false;
+                    if (dist > b2)
+                    {
+                        dist = b2;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS*DoubleArea(f))
+                if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS * DoubleArea(f))
                 {
                     ScalarType bt;
-                    if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
-                    else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
-                    else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-
-                    if (dist > bt) { dist = bt; return true; }
-                    else return false;
+                    if (b == b0)
+                    {
+                        bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
+                    }
+                    else if (b == b1)
+                    {
+                        bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
+                    }
+                    else
+                    {
+                        assert(b == b2);
+                        bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p);
+                    }
+                    if (dist > bt)
+                    {
+                        dist = bt;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 break;
-            default: assert(0);
-
+            default:
+                assert(0);
             }
-
             dist = ScalarType(fabs(d));
             return true;
         }
@@ -1600,26 +2193,23 @@ namespace tessellation
     }
 
     template <class UserTypes>
-    class FaceBase : public
-        face::EmptyCore< FaceTypeHolder <UserTypes> >
-    {
-    };
-    
+    class FaceBase : public face::EmptyCore< FaceTypeHolder <UserTypes> > {};
+
     template < class UserTypes,
-        template <typename> class A, template <typename> class B, template <typename> class C,
-        template <typename> class D, template <typename> class E,
-        template <typename> class F, template <typename> class G>
+               template <typename> class A, template <typename> class B, template <typename> class C,
+               template <typename> class D, template <typename> class E,
+               template <typename> class F, template <typename> class G>
     class FaceArityMax : public  Arity7<FaceBase<UserTypes>, A, B, C, D, E, F, G>
     {
     public:
         typedef typename  FaceArityMax::ScalarType ScalarType;
         enum
         {
-            DELETED = 0x00000001,	
-            NOTREAD = 0x00000002,	
-            NOTWRITE = 0x00000004,	
-            VISITED = 0x00000010,	
-            SELECTED = 0x00000020,	
+            DELETED = 0x00000001,
+            NOTREAD = 0x00000002,
+            NOTWRITE = 0x00000004,
+            VISITED = 0x00000010,
+            SELECTED = 0x00000020,
             BORDER0 = 0x00000040,
             BORDER1 = 0x00000080,
             BORDER2 = 0x00000100,
@@ -1670,7 +2260,7 @@ namespace tessellation
         {
             this->Flags() = 0;
         }
-        
+
         void SetS()
         {
             this->Flags() |= SELECTED;
@@ -1729,7 +2319,7 @@ namespace tessellation
             this->Flags() &= (~(FAUX0 | FAUX1 | FAUX2));
         }
 
-        void GetBBox(Box3<ScalarType> &bb) const
+        void GetBBox(Box3<ScalarType>& bb) const
         {
             if (this->IsD())
             {
@@ -1743,10 +2333,10 @@ namespace tessellation
     };
 
     template < class UserTypes,
-        template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
-        template <typename> class C = DefaultDeriver, template <typename> class D = DefaultDeriver,
-        template <typename> class E = DefaultDeriver, template <typename> class F = DefaultDeriver,
-        template <typename> class G = DefaultDeriver>
+               template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
+               template <typename> class C = DefaultDeriver, template <typename> class D = DefaultDeriver,
+               template <typename> class E = DefaultDeriver, template <typename> class F = DefaultDeriver,
+               template <typename> class G = DefaultDeriver>
     class Face : public FaceArityMax<UserTypes, A, B, C, D, E, F, G>
     {
     public:
