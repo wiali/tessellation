@@ -1,11 +1,7 @@
-// subloop.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
-#include "ml_mesh_type.h"
 #include "meshio.hpp"
-#include <algorithm/refine_loop.h>
-#include <algorithm/grid_static_ptr.h>
+#include <algorithm/complex_base.h>
+#include <algorithm/split_triangle.h>
 #include <QImage>
 
 using namespace tessellation;

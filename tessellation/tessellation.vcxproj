@@ -296,23 +296,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algorithm\complex_base.h" />
-    <ClInclude Include="algorithm\grid_static_ptr.h" />
-    <ClInclude Include="algorithm\refine.h" />
-    <ClInclude Include="algorithm\refine_loop.h" />
     <ClInclude Include="algorithm\simplex_base.h" />
     <ClInclude Include="algorithm\space_base.h" />
+    <ClInclude Include="algorithm\split_triangle.h" />
     <ClInclude Include="meshio.hpp" />
-    <ClInclude Include="ml_mesh_type.h" />
-    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

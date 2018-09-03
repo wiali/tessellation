@@ -19,36 +19,21 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ml_mesh_type.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="algorithm\complex_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="algorithm\grid_static_ptr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="algorithm\refine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="algorithm\refine_loop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="algorithm\simplex_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="algorithm\space_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="algorithm\split_triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

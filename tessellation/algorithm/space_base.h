@@ -1,4 +1,4 @@
-#pragma  once
+#pragma once
 
 #include <assert.h>
 
@@ -10,22 +10,7 @@ namespace tessellation
 {
     namespace math
     {
-        const float EPSILON = 0.001f;
-
-        template <class SCALAR>
-        inline SCALAR  Clamp(const SCALAR &val, const SCALAR &minval, const SCALAR &maxval)
-        {
-            if (val < minval) return minval;
-            if (val > maxval) return maxval;
-            return val;
-        }
-
         inline float Sqrt(const float v) { return sqrtf(v); }
-
-        inline bool isZero(const float v)
-        {
-            return fabs(v) < EPSILON;
-        }
 
         template<class T> int IsNAN(T t) { return _isnan(t) || (!_finite(t)); }
 
@@ -39,10 +24,11 @@ namespace tessellation
                 else return c;
             }
         }
+
         template<class T> inline const T & Max(const T &a, const T &b, const T &c) {
             if (a > b) {
                 if (a > c) return a;
-                else return c; // if c<a then c is smaller than b...
+                else return c;
             }
             else {
                 if (b > c) return b;
@@ -99,8 +85,6 @@ namespace tessellation
         template <typename> class G>
     class Arity7 : public G<Arity6<Base, A, B, C, D, E, F> > {};
 
-
-    // chain with 2 template arguments on the derivers
     template <
     class Base,
           class TA,
@@ -143,16 +127,12 @@ namespace tessellation
     template <class P2ScalarType> class Point2
     {
     protected:
-        /// The only data member. Hidden to user.
         P2ScalarType _v[2];
     public:
-        /// the scalar type
         typedef P2ScalarType ScalarType;
         enum { Dimension = 2 };
 
-        /// empty constructor (does nothing)
         inline Point2() { }
-        /// x,y constructor
         inline Point2(const ScalarType nx, const ScalarType ny)
         {
             _v[0] = nx;
@@ -164,8 +144,6 @@ namespace tessellation
         inline ScalarType &X() { return _v[0]; }
         inline ScalarType &Y() { return _v[1]; }
 
-        //@{
-        /** @name Linearity for 2d points (operators +, -, *, /, *= ...) **/
         inline Point2 operator + (Point2 const &p) const
         {
             return Point2<ScalarType>(_v[0] + p._v[0], _v[1] + p._v[1]);
@@ -194,7 +172,6 @@ namespace tessellation
             return _v[i];
         }
 
-        /// normalizes, and returns itself as result
         inline Point2 & Normalize(void)
         {
             ScalarType n = math::Sqrt(_v[0] * _v[0] + _v[1] * _v[1]);
@@ -202,17 +179,15 @@ namespace tessellation
             return *this;
         }
 
-    }; // end class definition
+    };
 
     typedef Point2<float>  Point2f;
-
 
     template <class T> class Box3;
 
     template <class P3ScalarType> class Point3
     {
     protected:
-        /// The only data member. Hidden to user.
         P3ScalarType _v[3];
 
     public:
@@ -275,13 +250,6 @@ namespace tessellation
             return _v[i];
         }
 
-        //@}
-        //@{
-
-        /** @name Classical overloading of operators
-        Note
-        **/
-
         inline Point3 operator + (Point3 const &p) const
         {
             return Point3<P3ScalarType>(_v[0] + p._v[0], _v[1] + p._v[1], _v[2] + p._v[2]);
@@ -299,8 +267,6 @@ namespace tessellation
         {
             return Point3<P3ScalarType>(_v[0] / s, _v[1] / s, _v[2] / s);
         }
-        /// Dot product
-
 
         inline Point3 &operator += (Point3 const &p)
         {
@@ -350,7 +316,7 @@ namespace tessellation
         }
 
         inline P3ScalarType dot(const Point3 & p) const { return (*this) * p; }
-        /// Cross product
+
         inline Point3 operator ^ (Point3 const & p) const
         {
             return Point3 <P3ScalarType>
@@ -361,7 +327,6 @@ namespace tessellation
                     );
         }
 
-        // Norme
         inline P3ScalarType Norm() const
         {
             return math::Sqrt(_v[0] * _v[0] + _v[1] * _v[1] + _v[2] * _v[2]);
@@ -379,7 +344,7 @@ namespace tessellation
             return *this;
         }
 
-    }; // end class definition
+    };
 
     template <class P3ScalarType>
     inline P3ScalarType SquaredNorm(Point3<P3ScalarType> const &p)
@@ -424,7 +389,6 @@ namespace tessellation
         return p.Norm();
     }
 
-    /// Point(p) Edge(v1-v2) dist, q is the point in v1-v2 with min dist
     template<class P3ScalarType>
     P3ScalarType PSDist(const Point3<P3ScalarType> & p,
         const Point3<P3ScalarType> & v1,
@@ -440,139 +404,13 @@ namespace tessellation
     }
 
     typedef Point3<int>	   Point3i;
-    typedef Point3<float>  Point3f;
-
-    template <class T> class Point4
-    {
-    public:
-        /// The only data member. Hidden to user.
-        T _v[4];
-
-    public:
-        typedef T ScalarType;
-        enum { Dimension = 4 };
-
-        //@{
-
-        /** @name Standard Constructors and Initializers
-         No casting operators have been introduced to avoid automatic unattended (and costly) conversion between different point types
-         **/
-
-        inline Point4() { }
-        inline Point4(const T nx, const T ny, const T nz, const T nw)
-        {
-            _v[0] = nx;
-            _v[1] = ny;
-            _v[2] = nz;
-            _v[3] = nw;
-        }
-
-
-        /** @name Data Access.
-         access to data is done by overloading of [] or explicit naming of coords (x,y,z,w)
-          **/
-        inline const T &operator [] (const int i) const
-        {
-            assert(i >= 0 && i < 4);
-            return _v[i];
-        }
-        inline T &operator [] (const int i)
-        {
-            assert(i >= 0 && i < 4);
-            return _v[i];
-        }
-
-        inline T const *V() const
-        {
-            return _v;
-        }
-        inline T *V()
-        {
-            return _v;
-        }
-
-    }; // end class definition
-
-
-    template <class T>
-    class Color4 : public Point4<T>
-    {
-        typedef Point4<T> Base;
-    public:
-        /// Constant for storing standard colors.
-        /// Each color is stored in a simple in so that the bit pattern match with the one of Color4b.
-        enum ColorConstant
-        {
-            Black = 0xff000000,
-            Gray = 0xff808080,
-            White = 0xffffffff,
-
-            Red = 0xff0000ff,
-            Green = 0xff00ff00,
-            Blue = 0xffff0000,
-
-            Cyan = 0xffffff00,
-            Yellow = 0xff00ffff,
-            Magenta = 0xffff00ff,
-
-            LightGray = 0xffc0c0c0,
-            LightRed = 0xff8080ff,
-            LightGreen = 0xff80ff80,
-            LightBlue = 0xffff8080,
-
-            DarkGray = 0xff404040,
-            DarkRed = 0xff000040,
-            DarkGreen = 0xff004000,
-            DarkBlue = 0xff400000
-        };
-
-        inline Color4(const T nx, const T ny, const T nz, const T nw) : Point4<T>(nx, ny, nz, nw) {}
-        inline Color4(const Point4<T> &c) : Point4<T>(c) {}
-        inline Color4() {}
-        inline Color4(ColorConstant cc);
-        inline Color4(unsigned int cc);
-
-
-        template <class ScalarInterpType>
-        inline void lerp(const Color4 &c0, const Color4 &c1, const ScalarInterpType x)
-        {
-            assert(x >= 0);
-            assert(x <= 1);
-
-            (*this)[0] = (T)(c1.V()[0] * x + c0.V()[0] * (1.0f - x));
-            (*this)[1] = (T)(c1.V()[1] * x + c0.V()[1] * (1.0f - x));
-            (*this)[2] = (T)(c1.V()[2] * x + c0.V()[2] * (1.0f - x));
-            (*this)[3] = (T)(c1.V()[3] * x + c0.V()[3] * (1.0f - x));
-        }
-    }; /// END CLASS ///////////////////
-
-    template<>
-    inline Color4<unsigned char>::Color4(Color4<unsigned char>::ColorConstant cc)
-    {
-        *((int *)this) = cc;
-    }
-
-
-    typedef Color4<unsigned char>  Color4b;
-
-
-
+    typedef Point3<float>  Point3f;    
+    
     namespace tri
     {
-        /// \ingroup trimesh
-
-        /// \headerfile flag.h vcg/complex/algorithms/update/flag.h
-
-        /// \brief Management, updating and computation of per-vertex and per-face flags (like border flags).
-
-        /**
-        This class is used to compute or update some of the flags that can be stored in the mesh components. For now just Border flags (e.g. the flag that tells if a given edge of a face belong to a border of the mesh or not).
-        */
-
         template <class UpdateMeshType>
         class UpdateFlags
         {
-
         public:
             typedef UpdateMeshType MeshType;
             typedef typename MeshType::VertexType     VertexType;
@@ -596,30 +434,28 @@ namespace tessellation
 
             static void VertexClearV(MeshType &m) { VertexClear(m, VertexType::VISITED); }
             static void VertexSetV(MeshType &m) { VertexSet(m, VertexType::VISITED); }
-            /**
-            \warning Obviously it assumes that the topology has been correctly computed (see: UpdateTopology::FaceFace )
-            */
+
             static void FaceBorderFromFF(MeshType &m)
             {
                 RequirePerFaceFlags(m);
                 RequireFFAdjacency(m);
 
                 for (FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)if (!(*fi).IsD())
-                        for (int j = 0; j < fi->VN(); ++j)
-                        {
-                            if (face::IsBorder(*fi, j)) (*fi).SetB(j);
-                            else (*fi).ClearB(j);
-                        }
+                {
+                    for (int j = 0; j < fi->VN(); ++j)
+                    {
+                        if (face::IsBorder(*fi, j))
+                            (*fi).SetB(j);
+                        else (*fi).ClearB(j);
+                    }
+                }
             }
 
-        }; // end class
-
-        /// \brief Generation of per-vertex and per-face topological information.
+        };
 
         template <class UpdateMeshType>
         class UpdateTopology
         {
-
         public:
             typedef UpdateMeshType MeshType;
             typedef typename MeshType::ScalarType     ScalarType;
@@ -628,21 +464,12 @@ namespace tessellation
             typedef typename MeshType::FacePointer    FacePointer;
             typedef typename MeshType::FaceIterator   FaceIterator;
 
-
-            /// \headerfile topology.h vcg/complex/algorithms/update/topology.h
-
-            /// \brief Auxiliairy data structure for computing face face adjacency information.
-            /**
-            It identifies and edge storing two vertex pointer and a face pointer where it belong.
-            */
-
             class PEdge
             {
             public:
-
-                VertexPointer  v[2];  // the two Vertex pointer are ordered!
-                FacePointer    f;     // the face where this edge belong
-                int            z;     // index in [0..2] of the edge of the face
+                VertexPointer  v[2];
+                FacePointer    f;
+                int            z;
                 bool isBorder;
 
                 PEdge() {}
@@ -658,7 +485,7 @@ namespace tessellation
 
                     v[0] = pf->V(nz);
                     v[1] = pf->V(pf->Next(nz));
-                    assert(v[0] != v[1]); // The face pointed by 'f' is Degenerate (two coincident vertexes)
+                    assert(v[0] != v[1]);
 
                     if (v[0] > v[1]) std::swap(v[0], v[1]);
                     f = pf;
@@ -676,20 +503,7 @@ namespace tessellation
                 {
                     return v[0] == pe.v[0] && v[1] == pe.v[1];
                 }
-                /// Convert from edge barycentric coord to the face baricentric coord a point on the current edge.
-                /// Face barycentric coordinates are relative to the edge face.
-                inline Point3<ScalarType> EdgeBarycentricToFaceBarycentric(ScalarType u) const
-                {
-                    Point3<ScalarType> interp(0, 0, 0);
-                    interp[this->z] = u;
-                    interp[(this->z + 1) % 3] = 1.0f - u;
-                    return interp;
-                }
             };
-
-            /// Fill a vector with all the edges of the mesh.
-            /// each edge is stored in the vector the number of times that it appears in the mesh, with the referring face.
-            /// optionally it can skip the faux edges (to retrieve only the real edges of a triangulated polygonal mesh)
 
             static void FillEdgeVector(MeshType &m, std::vector<PEdge> &edgeVec, bool includeFauxEdge = true)
             {
@@ -701,7 +515,6 @@ namespace tessellation
                                 edgeVec.push_back(PEdge(&*fi, j));
             }
 
-            /// \brief Update the Face-Face topological relation by allowing to retrieve for each face what other faces shares their edges.
             static void FaceFace(MeshType &m)
             {
                 RequireFFAdjacency(m);
@@ -709,28 +522,26 @@ namespace tessellation
 
                 std::vector<PEdge> e;
                 FillEdgeVector(m, e);
-                sort(e.begin(), e.end());							// Lo ordino per vertici
+                sort(e.begin(), e.end());
 
-                int ne = 0;											// Numero di edge reali
+                int ne = 0;
 
                 typename std::vector<PEdge>::iterator pe, ps;
                 ps = e.begin();
                 pe = e.begin();
-                //for(ps = e.begin(),pe=e.begin();pe<=e.end();++pe)	// Scansione vettore ausiliario
                 do
                 {
-                    if (pe == e.end() || !(*pe == *ps))					// Trovo blocco di edge uguali
+                    if (pe == e.end() || !(*pe == *ps))
                     {
                         typename std::vector<PEdge>::iterator q, q_next;
-                        for (q = ps; q < pe - 1; ++q)						// Scansione facce associate
+                        for (q = ps; q < pe - 1; ++q)
                         {
                             assert((*q).z >= 0);
-                            //assert((*q).z< 3);
                             q_next = q;
                             ++q_next;
                             assert((*q_next).z >= 0);
                             assert((*q_next).z < (*q_next).f->VN());
-                            (*q).f->FFp(q->z) = (*q_next).f;				// Collegamento in lista delle facce
+                            (*q).f->FFp(q->z) = (*q_next).f;
                             (*q).f->FFi(q->z) = (*q_next).z;
                         }
                         assert((*q).z >= 0);
@@ -738,7 +549,7 @@ namespace tessellation
                         (*q).f->FFp((*q).z) = ps->f;
                         (*q).f->FFi((*q).z) = ps->z;
                         ps = pe;
-                        ++ne;										// Aggiorno il numero di edge
+                        ++ne;
                     }
                     if (pe == e.end()) 
                         break;
@@ -747,14 +558,6 @@ namespace tessellation
                 while (true);
             }
 
-            /// \brief Update the Vertex-Face topological relation.
-            /**
-            The function allows to retrieve for each vertex the list of faces sharing this vertex.
-            After this call all the VF component are initialized. Isolated vertices have a null list of faces.
-            \sa vcg::vertex::VFAdj
-            \sa vcg::face::VFAdj
-            */
-
             static void VertexFace(MeshType &m)
             {
                 RequireVFAdjacency(m);
@@ -762,7 +565,7 @@ namespace tessellation
                 for (VertexIterator vi = m.vert.begin(); vi != m.vert.end(); ++vi)
                 {
                     (*vi).VFp() = 0;
-                    (*vi).VFi() = 0; // note that (0,-1) means uninitiazlied while 0,0 is the valid initialized values for isolated vertices.
+                    (*vi).VFi() = 0;
                 }
 
                 for (FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)
@@ -778,9 +581,8 @@ namespace tessellation
                     }
             }
 
-        }; // end class
+        };
 
-           //**MARKER CLASSES**//
         template <class MESH_TYPE, class OBJ_TYPE>
         class Tmark
         {
@@ -806,7 +608,7 @@ namespace tessellation
             FaceTmark(MESH_TYPE *m) { this->SetMesh(m); }
         };
 
-    } // end namespace
+    }
 
     template<class TriangleType>
     typename TriangleType::ScalarType DoubleArea(const TriangleType &t)
@@ -814,52 +616,39 @@ namespace tessellation
         return Norm((t.cP(1) - t.cP(0)) ^ (t.cP(2) - t.cP(0)));
     }
 
-
-        template <class BoxScalarType>
+    template <class BoxScalarType>
     class Box3
     {
     public:
-
-        /// The scalar type
         typedef BoxScalarType ScalarType;
 
-        /// min coordinate point
         Point3<BoxScalarType> min;
-        /// max coordinate point
         Point3<BoxScalarType> max;
-        /// The bounding box constructor
+
         inline  Box3() { min.X() = 1; max.X() = -1; min.Y() = 1; max.Y() = -1; min.Z() = 1; max.Z() = -1; }
-        /// Copy constructor
         inline  Box3(const Box3 & b) { min = b.min; max = b.max; }
-        /// Min Max constructor
         inline  Box3(const Point3<BoxScalarType> & mi, const Point3<BoxScalarType> & ma) { min = mi; max = ma; }
-        /// Point Radius Constructor
         inline Box3(const Point3<BoxScalarType> & center, const BoxScalarType & radius) {
             min = center - Point3<BoxScalarType>(radius, radius, radius);
             max = center + Point3<BoxScalarType>(radius, radius, radius);
         }
-        /// The bounding box distructor
         inline ~Box3() { }
 
-        /// Initializing the bounding box
         void Set(const Point3<BoxScalarType> & p)
         {
             min = max = p;
         }
 
-        /// Set the bounding box to a null value
         void SetNull()
         {
             min.X() = 1; max.X() = -1;
             min.Y() = 1; max.Y() = -1;
             min.Z() = 1; max.Z() = -1;
         }
-        /** Modify the current bbox to contain also the passed box.
-         *  Adding a null bounding box does nothing
-        */
+
         void Add(Box3<BoxScalarType> const & b)
         {
-            if (b.IsNull()) return; // Adding a null bbox should do nothing
+            if (b.IsNull()) return;
             if (IsNull()) *this = b;
             else
             {
@@ -872,8 +661,7 @@ namespace tessellation
                 if (max.Z() < b.max.Z()) max.Z() = b.max.Z();
             }
         }
-        /** Modify the current bbox to contain also the passed point
-        */
+
         void Add(const Point3<BoxScalarType> & p)
         {
             if (IsNull()) Set(p);
@@ -902,9 +690,6 @@ namespace tessellation
             if (min.X() > max.X() || min.Y() > max.Y() || min.Z() > max.Z()) SetNull();
         }
 
-        /** true if the point belong to the open box (open on the max side)
-         * e.g. if p in [min,max)
-        */
         bool IsInEx(Point3<BoxScalarType> const & p) const
         {
             return (
@@ -921,70 +706,38 @@ namespace tessellation
             return Distance(min, max);
         }
 
-    }; // end class definition
-
+    };
 
     typedef Box3<int>	 Box3i;
     typedef Box3<float>  Box3f;
     
-
-    /*@}*/
-
-    /** \addtogroup space */
-    /*@{*/
-    /**
-    Templated class for 3D segment.
-    This is the class for a segment in 3D space. A Segment is stored just as its two extrema (Point3).
-    @param SegmentScalarType (template parameter) Specifies the type of scalar used to represent coords.
-    */
     template <class SegmentScalarType >
     class Segment3
     {
     public:
-
-        /// The scalar type
         typedef SegmentScalarType ScalarType;
-
-        /// The point type
         typedef Point3<SegmentScalarType> PointType;
-
-        /// The point type
         typedef Segment3<SegmentScalarType> SegmentType;
 
     private:
-
-        /// _extrema
         PointType _p0, _p1;
 
     public:
-
-        /// Members to access either extrema
         inline const PointType &P0() const { return _p0; }
         inline const PointType &P1() const { return _p1; }
 
-        /// The empty constructor
         Segment3() {};
-        /// The (a,b) constructor
         Segment3(const PointType &a, const PointType &b) { _p0 = a; _p1 = b; };
 
-        /// return the middle point
         inline PointType MidPoint() const
         {
             return (_p0 + _p1) / ScalarType(2.0);
         }
 
-    }; // end class definition
+    };
 
     typedef Segment3<float>  Segment3f;
 
-
-    /*
-    * Computes the minimum distance between a segment and a point
-    * @param[in] segment	The input segment
-    * @param[in] p				The input point
-    * @param[in] clos			The closest point
-    * @param[in] dist The distance
-    */
     template <class ScalarType>
     void SegmentPointDistance(Segment3<ScalarType> s,
         const Point3<ScalarType> & p,
@@ -995,14 +748,6 @@ namespace tessellation
         dist = sqrt(dist);
     }
 
-
-    /*
-    * Computes the minimum distance between a segment and a point
-    * @param[in] segment	The input segment
-    * @param[in] p				The input point
-    * @param[in] clos			The closest point
-    * @param[in] sqr_dist The squared distance
-    */
     template <class ScalarType>
     void SegmentPointSquaredDistance(const Segment3<ScalarType> &s,
         const Point3<ScalarType> & p,
@@ -1027,76 +772,423 @@ namespace tessellation
         }
     }
 
-       /** \addtogroup space */
-       /*@{*/
-       /**
-       Templated class for 2D planes in 3D spaces.
-       This is the class for infinite planes in 3D space. A Plane is stored just as a Point3 and a scalar:
-       * a direction (not necessarily normalized),
-       * an offset from the origin
 
-       Just to be clear, given a point P on a plane it always holds:
-
-       plane.Direction().dot(P) == plane.Offset()
-
-
-       @param T (template parameter) Specifies the type of scalar used to represent coords.
-       @param NORM: if on, the direction is always Normalized
-       */
     template <class T, bool NORM = true> class Plane3 {
     public:
         typedef T ScalarType;
         typedef Point3<T> PointType;
 
     private:
-        /// Distance
         ScalarType _offset;
-        ///Direction (not necessarily normalized unless NORM is true)
         PointType _dir;
 
     public:
-        //@{
-        /** @name Constructors
-        **/
-        /// The empty constructor
         Plane3() {}
-        /// The (distance, direction) constructor
         Plane3(const ScalarType &dist, const PointType &dir) { Set(dist, dir); }
 
-
-        //@{
-        /** @name Members to access the distance or direction
-        Direction() cannot be assigned directly.
-        Use SetDirection() or Set() instead. This is mandatory to make possible the automatic autonormalization template mechanism.
-        Note that if you have to set both direction and offset it can be more efficient to set them toghether
-        **/
         const ScalarType &Offset() const { return _offset; }
         ScalarType &Offset() { return _offset; }
-        /// sets the origin
         void SetOffset(const ScalarType &o) { _offset = o; }
 
         const PointType &Direction() const { return _dir; }
 
-
-        /// Function to normalize direction
         void Normalize() {
             _dir.Normalize();
         }
 
-        /// Calculates the plane passing through a point and the normal (Rename this method
         inline void Init(const PointType &p0, const PointType &norm) {
             _dir = norm;
             if (NORM) Normalize();
             _offset = p0.dot(_dir);
         }
-    };	// end class Plane3
+    };
 
     typedef Plane3<float>  Plane3f;
-    typedef Plane3<double> Plane3d;
 
-    ///Distance plane - point and vv. (Move these function to somewhere else)
     template<class T> T SignedDistancePlanePoint(const Plane3<T, true> & plane, const Point3<T> & point)
     {
         return plane.Direction().dot(point) - plane.Offset();
-    }    
+    }
+
+    template <class SCALARTYPE>
+    class BasicGrid
+    {
+    public:
+        typedef SCALARTYPE ScalarType;
+        typedef Box3<ScalarType> Box3x;
+        typedef Point3<ScalarType> CoordType;
+        typedef BasicGrid<SCALARTYPE> GridType;
+
+        Box3x bbox;
+
+        CoordType dim;
+        Point3i siz;
+        CoordType voxel;
+
+        inline void PToIP(const CoordType & p, Point3i &pi) const
+        {
+            CoordType t = p - bbox.min;
+            pi[0] = int(t[0] / voxel[0]);
+            pi[1] = int(t[1] / voxel[1]);
+            pi[2] = int(t[2] / voxel[2]);
+        }
+
+        inline void BoxToIBox(const Box3x & b, Box3i & ib) const
+        {
+            PToIP(b.min, ib.min);
+            PToIP(b.max, ib.max);
+        }
+    };
+
+    template<class scalar_type>
+    void BestDim(const __int64 elems, const Point3<scalar_type> & size, Point3i & dim)
+    {
+        const __int64 mincells = 1;
+        const double GFactor = 1;
+        double diag = size.Norm();
+        double eps = diag*1e-4;
+
+        assert(elems>0);
+        assert(size[0] >= 0.0);
+        assert(size[1] >= 0.0);
+        assert(size[2] >= 0.0);
+
+
+        __int64 ncell = (__int64)(elems*GFactor);
+        if (ncell<mincells)
+            ncell = mincells;
+
+        dim[0] = 1;
+        dim[1] = 1;
+        dim[2] = 1;
+
+        if (size[0]>eps)
+        {
+            if (size[1]>eps)
+            {
+                if (size[2]>eps)
+                {
+                    double k = pow((double)(ncell / (size[0] * size[1] * size[2])), double(1.0 / 3.f));
+                    dim[0] = int(size[0] * k);
+                    dim[1] = int(size[1] * k);
+                    dim[2] = int(size[2] * k);
+                }
+                else
+                {
+                    dim[0] = int(::sqrt(ncell*size[0] / size[1]));
+                    dim[1] = int(::sqrt(ncell*size[1] / size[0]));
+                }
+            }
+            else
+            {
+                if (size[2]>eps)
+                {
+                    dim[0] = int(::sqrt(ncell*size[0] / size[2]));
+                    dim[2] = int(::sqrt(ncell*size[2] / size[0]));
+                }
+                else
+                    dim[0] = int(ncell);
+            }
+        }
+        else
+        {
+            if (size[1]>eps)
+            {
+                if (size[2]>eps)
+                {
+                    dim[1] = int(::sqrt(ncell*size[1] / size[2]));
+                    dim[2] = int(::sqrt(ncell*size[2] / size[1]));
+                }
+                else
+                    dim[1] = int(ncell);
+            }
+            else if (size[2]>eps)
+                dim[2] = int(ncell);
+        }
+        dim[0] = std::max(dim[0], 1);
+        dim[1] = std::max(dim[1], 1);
+        dim[2] = std::max(dim[2], 1);
+    }
+
+    template <class OBJTYPE, class SCALARTYPE>
+    class SpatialIndex {
+    public:
+        typedef SpatialIndex<OBJTYPE, SCALARTYPE> ClassType;
+        typedef OBJTYPE ObjType;
+        typedef SCALARTYPE ScalarType;
+        typedef ObjType * ObjPtr;
+        typedef Point3<ScalarType> CoordType;
+        typedef Box3<ScalarType> BoxType;
+
+        template <class OBJMARKER, class OBJPTRCONTAINER>
+        unsigned int GetInBox(OBJMARKER & _marker, const BoxType _bbox, OBJPTRCONTAINER & _objectPtrs) {
+            assert(0);
+            (void)_marker;
+            (void)_bbox;
+            (void)_objectPtrs;
+            return (0);
+        }
+    };
+    
+    template < class OBJTYPE, class FLT = float >
+    class GridStaticPtr : public BasicGrid<FLT>, SpatialIndex<OBJTYPE, FLT>
+    {
+    public:
+        typedef OBJTYPE ObjType;
+        typedef ObjType* ObjPtr;
+        typedef typename ObjType::ScalarType ScalarType;
+        typedef Point3<ScalarType> CoordType;
+
+        typedef GridStaticPtr<OBJTYPE, FLT> GridPtrType;
+        typedef BasicGrid<FLT> BT;
+
+        class Link
+        {
+        public:
+            inline Link() {};
+            inline Link(ObjPtr nt, const int ni) {
+                assert(ni >= 0);
+                t = nt;
+                i = ni;
+            };
+
+            inline bool operator <  (const Link & l) const { return i < l.i; }
+            inline bool operator <= (const Link & l) const { return i <= l.i; }
+            inline bool operator >  (const Link & l) const { return i > l.i; }
+            inline bool operator >= (const Link & l) const { return i >= l.i; }
+            inline bool operator == (const Link & l) const { return i == l.i; }
+            inline bool operator != (const Link & l) const { return i != l.i; }
+
+            inline ObjPtr & Elem() {
+                return t;
+            }
+
+            ObjType &operator *() { return *(t); }
+
+            inline int & Index() {
+                return i;
+            }
+
+        private:
+            ObjPtr t;
+            int i;
+        };
+
+        typedef Link* Cell;
+        typedef Cell CellIterator;
+
+        std::vector<Link>   links;
+
+        std::vector<Cell> grid;
+
+
+        bool Empty() const { return links.empty(); }
+
+        inline Cell* Grid(const int x, const int y, const int z)
+        {
+            assert(!(x < 0 || x >= BT::siz[0] || y < 0 || y >= BT::siz[1] || z < 0 || z >= BT::siz[2]));
+            assert(grid.size() > 0);
+            return &*grid.begin() + (x + BT::siz[0] * (y + BT::siz[1] * z));
+        }
+
+        void Grid(const int x, const int y, const int z, Cell & first, Cell & last)
+        {
+            Cell* g = Grid(x, y, z);
+            first = *g;
+            last = *(g + 1);
+        }
+
+        template <class OBJITER>
+        inline void Set(const OBJITER & _oBegin, const OBJITER & _oEnd, int _size = 0)
+        {
+            Box3<FLT> _bbox;
+            Box3<FLT> b;
+            for (OBJITER i = _oBegin; i != _oEnd; ++i)
+            {
+                (*i).GetBBox(b);
+                _bbox.Add(b);
+            }
+            if (_size == 0)
+                _size = (int)std::distance<OBJITER>(_oBegin, _oEnd);
+
+            ScalarType infl = _bbox.Diag() / _size;
+            _bbox.min -= tessellation::Point3<FLT>(infl, infl, infl);
+            _bbox.max += tessellation::Point3<FLT>(infl, infl, infl);
+
+            Set(_oBegin, _oEnd, _bbox, _size);
+        }
+
+        template <class OBJITER>
+        inline void Set(const OBJITER & _oBegin, const OBJITER & _oEnd, const Box3x &_bbox, int _size = 0)
+        {
+            if (_size == 0)
+                _size = (int)std::distance<OBJITER>(_oBegin, _oEnd);
+            Point3<FLT> _dim = _bbox.max - _bbox.min;
+            Point3i _siz;
+            BestDim(_size, _dim, _siz);
+
+            Set(_oBegin, _oEnd, _bbox, _siz);
+        }
+
+        template <class OBJITER>
+        inline void Set(const OBJITER & _oBegin, const OBJITER & _oEnd, const Box3x &_bbox, Point3i _siz)
+        {
+            OBJITER i;
+
+            this->bbox = _bbox;
+            this->siz = _siz;
+            
+            this->dim = this->bbox.max - this->bbox.min;
+            this->voxel[0] = this->dim[0] / this->siz[0];
+            this->voxel[1] = this->dim[1] / this->siz[1];
+            this->voxel[2] = this->dim[2] / this->siz[2];
+
+            grid.resize(this->siz[0] * this->siz[1] * this->siz[2] + 1);
+
+            links.clear();
+            for (i = _oBegin; i != _oEnd; ++i)
+            {
+                Box3x bb;
+                (*i).GetBBox(bb);
+                bb.Intersect(this->bbox);
+                if (!bb.IsNull())
+                {
+                    Box3i ib;
+                    this->BoxToIBox(bb, ib);
+                    int x, y, z;
+                    for (z = ib.min[2]; z <= ib.max[2]; ++z)
+                    {
+                        int bz = z*this->siz[1];
+                        for (y = ib.min[1]; y <= ib.max[1]; ++y)
+                        {
+                            int by = (y + bz)*this->siz[0];
+                            for (x = ib.min[0]; x <= ib.max[0]; ++x)
+                                links.push_back(Link(&(*i), by + x));
+                        }
+                    }
+                }
+            }
+
+            links.push_back(Link(NULL, int(grid.size()) - 1));
+
+            sort(links.begin(), links.end());
+
+            typename std::vector<Link>::iterator pl;
+            unsigned int pg;
+            pl = links.begin();
+            for (pg = 0; pg < grid.size(); ++pg)
+            {
+                assert(pl != links.end());
+                grid[pg] = &*pl;
+                while ((int)pg == pl->Index())
+                {
+                    ++pl;
+                    if (pl == links.end())
+                        break;
+                }
+            }
+
+        }
+
+        template <class OBJPOINTDISTFUNCTOR, class OBJMARKER>
+        ObjPtr GetClosest(OBJPOINTDISTFUNCTOR & _getPointDistance, OBJMARKER & _marker,
+            const typename OBJPOINTDISTFUNCTOR::QueryType & _p, const ScalarType & _maxDist, ScalarType & _minDist, CoordType & _closestPt)
+        {
+            return (tessellation::GridClosest<GridPtrType, OBJPOINTDISTFUNCTOR, OBJMARKER>(*this, _getPointDistance, _marker, _p, _maxDist, _minDist, _closestPt));
+        }
+
+    };
+
+
+    template <class SPATIAL_INDEX, class OBJPOINTDISTFUNCTOR, class OBJMARKER>
+    typename SPATIAL_INDEX::ObjPtr  GridClosest(SPATIAL_INDEX &Si,
+        OBJPOINTDISTFUNCTOR _getPointDistance,
+        OBJMARKER & _marker,
+        const typename OBJPOINTDISTFUNCTOR::QueryType  & _p_obj,
+        const typename SPATIAL_INDEX::ScalarType & _maxDist,
+        typename SPATIAL_INDEX::ScalarType & _minDist,
+        typename SPATIAL_INDEX::CoordType &_closestPt)
+    {
+        typedef typename SPATIAL_INDEX::ObjPtr ObjPtr;
+        typedef typename SPATIAL_INDEX::CoordType CoordType;
+        typedef typename SPATIAL_INDEX::ScalarType ScalarType;
+        typedef typename SPATIAL_INDEX::Box3x Box3x;
+
+        Point3<ScalarType> _p = OBJPOINTDISTFUNCTOR::Pos(_p_obj);
+
+        _minDist = _maxDist;
+
+        ObjPtr winner = NULL;
+        _marker.UnMarkAll();
+        ScalarType newradius = Si.voxel.Norm();
+        ScalarType radius;
+        Box3i iboxdone, iboxtodo;
+        CoordType t_res;
+        typename SPATIAL_INDEX::CellIterator first, last, l;
+        if (Si.bbox.IsInEx(_p))
+        {
+            Point3i _ip;
+            Si.PToIP(_p, _ip);
+            Si.Grid(_ip[0], _ip[1], _ip[2], first, last);
+            for (l = first; l != last; ++l)
+            {
+                ObjPtr elem = &(**l);
+                if (!elem->IsD())
+                {
+                    if (_getPointDistance((**l), _p_obj, _minDist, t_res))
+                    {
+                        winner = elem;
+                        _closestPt = t_res;
+                        newradius = _minDist;
+                    }
+                    _marker.Mark(elem);
+                }
+            }
+            iboxdone = Box3i(_ip, _ip);
+        }
+
+        int ix, iy, iz;
+        Box3i ibox(Point3i(0, 0, 0), Si.siz - Point3i(1, 1, 1));
+        do
+        {
+            radius = newradius;
+            Box3x boxtodo = Box3x(_p, radius);
+
+            Si.BoxToIBox(boxtodo, iboxtodo);
+            iboxtodo.Intersect(ibox);
+            if (!boxtodo.IsNull())
+            {
+                for (ix = iboxtodo.min[0]; ix <= iboxtodo.max[0]; ix++)
+                    for (iy = iboxtodo.min[1]; iy <= iboxtodo.max[1]; iy++)
+                        for (iz = iboxtodo.min[2]; iz <= iboxtodo.max[2]; iz++)
+                            if (ix<iboxdone.min[0] || ix>iboxdone.max[0] ||
+                                iy<iboxdone.min[1] || iy>iboxdone.max[1] ||
+                                iz<iboxdone.min[2] || iz>iboxdone.max[2])
+                            {
+                                Si.Grid(ix, iy, iz, first, last);
+                                for (l = first; l != last; ++l) if (!(**l).IsD())
+                                {
+                                    ObjPtr elem = &(**l);
+                                    if (!elem->IsD())
+                                    {
+                                        if (!_marker.IsMarked(elem))
+                                        {
+                                            if (_getPointDistance((**l), _p_obj, _minDist, t_res))
+                                            {
+                                                winner = elem;
+                                                _closestPt = t_res;
+                                            };
+                                            _marker.Mark(elem);
+                                        }
+                                    }
+                                }
+                            }
+            }
+            if (!winner) newradius = radius + Si.voxel.Norm();
+            else newradius = _minDist;
+            iboxdone = iboxtodo;
+        } while (_minDist > radius);
+
+        return winner;
+    }
 }

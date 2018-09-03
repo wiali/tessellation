@@ -1,7 +1,7 @@
 #ifndef MESHLOADING_HPP_
 #define MESHLOADING_HPP_
 
-#include "ml_mesh_type.h"
+#include <algorithm/complex_base.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -12,6 +12,7 @@
 #include <QVector2D>
 
 using namespace std;
+using namespace tessellation;
 
 namespace MeshSpace
 {

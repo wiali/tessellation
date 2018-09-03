@@ -30,20 +30,20 @@ namespace tessellation
         }
         TexCoord2() {  }
 
-        /**/inline short      &n()
+        inline short      &n()
         {
             return _n[0];
         }
-        /**/inline short n() const
+        inline short n() const
         {
             return _n[0];
         }
 
-        /**/inline Point2<T> &t()
+        inline Point2<T> &t()
         {
             return _t[0];
-        }
-        /**/inline Point2<T> t() const
+        }        
+        inline Point2<T> t() const
         {
             return _t[0];
         }
@@ -54,10 +54,10 @@ namespace tessellation
         inline const PointType &P(const int i) const { assert(i > 0 && i < NMAX); return _t[i]; }
         inline PointType &P(const int i) { assert(i > 0 && i < NMAX); return _t[i]; }
 
-        /**/inline T & u() { return _t[0][0]; }
-        /**/inline T & v() { return _t[0][1]; }
-        /**/inline const T & u() const { return _t[0][0]; }
-        /**/inline const T & v() const { return _t[0][1]; }
+        inline T & u() { return _t[0][0]; }
+        inline T & v() { return _t[0][1]; }
+        inline const T & u() const { return _t[0][0]; }
+        inline const T & v() const { return _t[0][1]; }
 
         enum { n_coords = NMAX };
     };
@@ -66,11 +66,6 @@ namespace tessellation
 
     namespace vertex
     {
-        /** \addtogroup VertexComponentGroup
-        @{
-
-        /*------------------------- EMPTY CORE COMPONENTS -----------------------------------------*/
-
         template <class TT> class EmptyCore : public TT
         {
         public:
@@ -183,7 +178,6 @@ namespace tessellation
                 return z;
             }
 
-
             int &VEi() { static int z = -1; return z; }
             int cVEi() const { static int z = -1; return z; }
 
@@ -212,34 +206,27 @@ namespace tessellation
             }
 
             template < class RightValueType>
-            void ImportData(const RightValueType  & /*rVert*/) {
-                //			TT::ImportData( rVert);
-            }
+            void ImportData(const RightValueType& /*rVert*/) {}
 
             static bool HasVEAdjacency() { return false; }
         };
 
-        /*-------------------------- COORD ----------------------------------------*/
-        /*! \brief \em Generic Component: \b Geometric \b Position of the vertex
-        Templated on the coordinate class. In practice you use one of the two specialized class Coord3f and Coord3d
-        You can access to the coordinate of a vertex by mean of the P(),cP() member functions.
-        */
         template <class A, class T> class Coord : public T
         {
         public:
             typedef A CoordType;
             typedef typename A::ScalarType      ScalarType;
-            /// Return a const reference to the coordinate of the vertex
+
             inline const CoordType &P() const
             {
                 return _coord;
             }
-            /// Return a reference to the coordinate of the vertex
+
             inline       CoordType &P()
             {
                 return _coord;
             }
-            /// Return a const reference to the coordinate of the vertex
+
             inline       CoordType cP() const
             {
                 return _coord;
@@ -260,38 +247,25 @@ namespace tessellation
             CoordType _coord;
         };
 
-        /// Specialized Coord Component in floating point precision.
         template <class T> class Coord3f : public Coord<Point3f, T> {
         public:	static void Name(std::vector<std::string> & name) { name.push_back(std::string("Coord3f")); T::Name(name); }
         };
-
-        /*-------------------------- NORMAL ----------------------------------------*/
-        /*! \brief \em Generic Component: \b %Normal of the vertex
-
-        Templated on the Point3 class used to store the normal.
-        In practice you use one of the two specialized class Normal3f and Normal3d.
-
-        You can access to the normal of a vertex by mean of the N(),cN() member functions.
-
-        \note Many algorithms assume that, for sake of precision coherence,
-        the type of the normal is the same with respect to the type coord component.
-        */
 
         template <class A, class T> class Normal : public T
         {
         public:
             typedef A NormalType;
-            /// Return a const reference to the normal of the vertex
+
             inline const NormalType &N() const
             {
                 return _norm;
             }
-            /// Return a  reference to the normal of the vertex
+
             inline       NormalType &N()
             {
                 return _norm;
             }
-            /// Return a const reference to the normal of the vertex
+
             inline       NormalType cN() const
             {
                 return _norm;
@@ -311,7 +285,6 @@ namespace tessellation
             NormalType _norm;
         };
 
-        /// Specialized Normal component in floating point precision.
         template <class T> class Normal3f : public Normal<Point3f, T> {
         public:	static void Name(std::vector<std::string> & name) { name.push_back(std::string("Normal3f")); T::Name(name); }
         };
@@ -321,7 +294,6 @@ namespace tessellation
         public:
             typedef A TexCoordType;
 
-            /// Return a const reference to the Texture Coordinate
             const TexCoordType &T() const
             {
                 return _t;
@@ -354,7 +326,6 @@ namespace tessellation
             TexCoordType _t;
         };
 
-        /// Specialized Texture component in floating point precision.
         template <class TT> class TexCoord2f : public TexCoord<TexCoord2<float, 1>, TT>
         {
         public:
@@ -364,12 +335,6 @@ namespace tessellation
                 TT::Name(name);
             }
         };
-        /*------------------------- FLAGS -----------------------------------------*/
-        /*! \brief \em Component: Per vertex \b Flags
-
-        This component stores a 32 bit array of bit flags.
-        These bit flags are used for keeping track of selection, deletion, visiting etc. \sa \ref flags for more details on common uses of flags.
-        */
 
         template <class T> class BitFlags : public T
         {
@@ -412,9 +377,6 @@ namespace tessellation
                 VFAdjacencyEnabled = false;
             }
 
-            ////////////////////////////////////////
-            // All the standard methods of std::vector that can change the reallocation are
-            // redefined in order to manage the additional data.
             void push_back(const VALUE_TYPE & v)
             {
                 BaseType::push_back(v);
@@ -527,8 +489,6 @@ namespace tessellation
             bool VFAdjacencyEnabled;
         };
 
-        ///*-------------------------- TEXTURE  ----------------------------------*/
-
         template <class A, class TT> class TexCoordOcf : public TT {
         public:
             typedef A TexCoordType;
@@ -538,7 +498,7 @@ namespace tessellation
             template < class RightVertexType>
             void ImportData(const RightVertexType & rightV)
             {
-                if ((*this).IsTexCoordEnabled() && rightV.IsTexCoordEnabled()) // copy the data only if they are enabled in both vertices
+                if ((*this).IsTexCoordEnabled() && rightV.IsTexCoordEnabled())
                     T() = rightV.cT();
                 TT::ImportData(rightV);
             }
@@ -551,12 +511,8 @@ namespace tessellation
         public: static void Name(std::vector<std::string> & name) { name.push_back(std::string("TexCoordfOcf")); T::Name(name); }
         };
 
-        ///*-------------------------- InfoOpt  ----------------------------------*/
-
         template < class T> class InfoOcf : public T {
         public:
-            // You should never ever try to copy a vertex that has OCF stuff.
-            // use ImportData function.
             inline InfoOcf &operator=(const InfoOcf & /*other*/) {
                 assert(0); return *this;
             }
@@ -576,9 +532,6 @@ namespace tessellation
             static bool HasTexCoordOcf() { return false; }
             static bool HasVFAdjacencyOcf() { return false; }
         };
-
-        /*----------------------------- VFADJ ------------------------------*/
-
 
         template <class T> class VFAdjOcf : public T {
         public:
@@ -610,33 +563,8 @@ namespace tessellation
             bool IsVFAdjacencyEnabled(const typename T::VertexType *vp) { return vp->Base().VFAdjacencyEnabled; }
 
             static void Name(std::vector<std::string> & name) { name.push_back(std::string("VFAdjOcf")); T::Name(name); }
-        private:
         };
-
-        /** @} */   // End Doxygen VertexComponentGroup
-    } // end namespace vert
-
-    /* The base class form which we start to add our components.
-    it has the empty definition for all the standard members (coords, color flags)
-    Note:
-    in order to avoid both virtual classes and ambiguous definitions all
-    the subsequent overrides must be done in a sequence of derivation.
-
-    In other words we cannot derive and add in a single derivation step
-    (with multiple ancestor), both the real (non-empty) normal and color but
-    we have to build the type a step a time (deriving from a single ancestor at a time).
-
-     The Real Big Vertex class;
-
-    The class __VertexArityMax__ is the one that is the Last to be derived,
-    and therefore is the only one to know the real members
-    (after the many overrides) so all the functions with common behaviour
-    using the members defined in the various Empty/nonEmpty component classes
-    MUST be defined here.
-
-    I.e. IsD() that uses the overridden Flags() member must be defined here.
-
-    */
+    }
 
     template < class UserTypes,
         template <typename> class A, template <typename> class B,
@@ -644,98 +572,88 @@ namespace tessellation
         template <typename> class E, template <typename> class F>
     class VertexArityMax : public Arity6<vertex::EmptyCore<UserTypes>, A, B, C, D, E, F>
     {
-
-        // ----- Flags stuff -----
     public:
         enum
         {
-
-            DELETED = 0x0001,		// This bit indicate that the vertex is deleted from the mesh
-            NOTREAD = 0x0002,		// This bit indicate that the vertex of the mesh is not readable
-            NOTWRITE = 0x0004,		// This bit indicate that the vertex is not modifiable
-            MODIFIED = 0x0008,		// This bit indicate that the vertex is modified
-            VISITED = 0x0010,		// This bit can be used to mark the visited vertex
-            SELECTED = 0x0020,		// This bit can be used to select
-            BORDER = 0x0100,    // Border Flag
-            USER0 = 0x0200			// First user bit
+            DELETED = 0x0001,	
+            NOTREAD = 0x0002,	
+            NOTWRITE = 0x0004,	
+            MODIFIED = 0x0008,	
+            VISITED = 0x0010,	
+            SELECTED = 0x0020,	
+            BORDER = 0x0100,    
+            USER0 = 0x0200		
         };
 
         bool IsD() const
         {
-            return (this->cFlags() & DELETED) != 0;    ///  checks if the vertex is deleted
+            return (this->cFlags() & DELETED) != 0;
         }
         bool IsR() const
         {
-            return (this->cFlags() & NOTREAD) == 0;    ///  checks if the vertex is readable
+            return (this->cFlags() & NOTREAD) == 0;
         }
         bool IsW() const
         {
-            return (this->cFlags() & NOTWRITE) == 0;    ///  checks if the vertex is modifiable
+            return (this->cFlags() & NOTWRITE) == 0;
         }
         bool IsRW() const
         {
-            return (this->cFlags() & (NOTREAD | NOTWRITE)) == 0;    /// This funcion checks whether the vertex is both readable and modifiable
+            return (this->cFlags() & (NOTREAD | NOTWRITE)) == 0;
         }
         bool IsS() const
         {
-            return (this->cFlags() & SELECTED) != 0;    ///  checks if the vertex is Selected
+            return (this->cFlags() & SELECTED) != 0;
         }
         bool IsB() const
         {
-            return (this->cFlags() & BORDER) != 0;    ///  checks if the vertex is a border one
+            return (this->cFlags() & BORDER) != 0;
         }
         bool IsV() const
         {
-            return (this->cFlags() & VISITED) != 0;    ///  checks if the vertex Has been visited
+            return (this->cFlags() & VISITED) != 0;
         }
 
-
-        /** Set the flag value
-            @param flagp Valore da inserire nel flag
-        */
         void SetFlags(int flagp)
         {
             this->Flags() = flagp;
         }
 
-        /** Set the flag value
-            @param flagp Valore da inserire nel flag
-        */
         void ClearFlags()
         {
             this->Flags() = 0;
         }
         void SetD()
         {
-            this->Flags() |= DELETED;    ///  deletes the vertex from the mesh
+            this->Flags() |= DELETED;
         }
         void ClearD()
         {
-            this->Flags() &= (~DELETED);    ///  un-delete a vertex
+            this->Flags() &= (~DELETED);
         }
         void SetR()
         {
-            this->Flags() &= (~NOTREAD);    ///  marks the vertex as readable
+            this->Flags() &= (~NOTREAD);
         }
         void ClearR()
         {
-            this->Flags() |= NOTREAD;    ///  marks the vertex as not readable
+            this->Flags() |= NOTREAD;
         }
         void ClearW()
         {
-            this->Flags() |= NOTWRITE;    ///  marks the vertex as writable
+            this->Flags() |= NOTWRITE;
         }
         void SetW()
         {
-            this->Flags() &= (~NOTWRITE);    ///  marks the vertex as not writable
+            this->Flags() &= (~NOTWRITE);
         }
         void SetS()
         {
-            this->Flags() |= SELECTED;    ///  select the vertex
+            this->Flags() |= SELECTED;
         }
         void ClearS()
         {
-            this->Flags() &= ~SELECTED;    /// Un-select a vertex
+            this->Flags() &= ~SELECTED;
         }
         void SetB()
         {
@@ -754,14 +672,12 @@ namespace tessellation
             this->Flags() &= ~VISITED;
         }
 
-        ///  Return the first bit that is not still used
         static int &FirstUnusedBitFlag()
         {
             static int b = USER0;
             return b;
         }
 
-        /// Allocate a bit among the flags that can be used by user. It updates the FirstUnusedBitFlag.
         static inline int NewBitFlag()
         {
             int bitForTheUser = FirstUnusedBitFlag();
@@ -769,8 +685,6 @@ namespace tessellation
             return bitForTheUser;
         }
 
-        /// De-allocate a pre allocated bit. It updates the FirstUnusedBitFlag.
-        // Note you must deallocate bit in the inverse order of the allocation (as in a stack)
         static inline bool DeleteBitFlag(int bitval)
         {
             if (FirstUnusedBitFlag() >> 1 == bitval)
@@ -782,19 +696,16 @@ namespace tessellation
             return false;
         }
 
-        /// This function checks if the given user bit is true
         bool IsUserBit(int userBit)
         {
             return (this->Flags() & userBit) != 0;
         }
 
-        /// This function set the given user bit
         void SetUserBit(int userBit)
         {
             this->Flags() |= userBit;
         }
 
-        /// This function clear the given user bit
         void ClearUserBit(int userBit)
         {
             this->Flags() &= (~userBit);
@@ -805,7 +716,6 @@ namespace tessellation
         {
             bb.Set(this->cP());
         }
-
     };
 
 
@@ -820,13 +730,6 @@ namespace tessellation
         typedef UserTypes TypesPool;
     };
 
-
-    /*------------------------------------------------------------------*/
-    /*
-    The base class of all the recusive definition chain. It is just a container of the typenames of the various simplexes.
-    These typenames must be known form all the derived classes.
-    */
-
     template <class UserTypes>
     class FaceTypeHolder : public UserTypes
     {
@@ -836,8 +739,6 @@ namespace tessellation
         void ImportData(const LeftF &) {}
         static void Name(std::vector<std::string> & /* name */) {}
 
-
-        // prot
         inline int VN()  const
         {
             return 3;
@@ -856,11 +757,6 @@ namespace tessellation
 
     namespace face
     {
-        /** \addtogroup FaceComponentGroup
-        @{
-        */
-        /*------------------------- EMPTY CORE COMPONENTS -----------------------------------------*/
-
         template <class T> class EmptyCore : public T
         {
         public:
@@ -977,8 +873,7 @@ namespace tessellation
                 }
             }
         };
-
-
+        
         template <class VALUE_TYPE>
         class vector_ocf : public std::vector<VALUE_TYPE>
         {
@@ -994,14 +889,10 @@ namespace tessellation
                 FFAdjacencyEnabled = false;
             }
 
-            // Auxiliary types to build internal vectors
             struct AdjTypePack {
                 typename VALUE_TYPE::FacePointer _fp[3];
                 char _zp[3];
 
-                // Default constructor.
-                // Needed because we need to know if adjacency is initialized or not
-                // when resizing vectors and during an allocate face.
                 AdjTypePack() {
                     _fp[0] = 0;
                     _fp[1] = 0;
@@ -1009,10 +900,6 @@ namespace tessellation
                 }
             };
 
-
-            ////////////////////////////////////////
-            // All the standard methods of std::vector that can change the reallocation are
-            // redefined in order to manage the additional data.
             void push_back(const VALUE_TYPE & v)
             {
                 BaseType::push_back(v);
@@ -1056,7 +943,6 @@ namespace tessellation
             void _updateOVP(ThisTypeIterator lbegin, ThisTypeIterator lend)
             {
                 ThisTypeIterator fi;
-                //for(fi=(*this).begin();vi!=(*this).end();++vi)
                 for (fi = lbegin; fi != lend; ++fi)
                     (*fi)._ovp = this;
             }
@@ -1124,18 +1010,13 @@ namespace tessellation
             bool NormalEnabled;
             bool VFAdjacencyEnabled;
             bool FFAdjacencyEnabled;
-        }; // end class vector_ocf
+        };
 
-
-        ///*-------------------------- InfoOpt  ----------------------------------*/
         template < class T> class InfoOcf : public T {
         public:
-            // You should never ever try to copy a vertex that has OCF stuff.
-            // use ImportData function.
             inline InfoOcf &operator=(const InfoOcf & /*other*/) {
                 assert(0); return *this;
             }
-
 
             vector_ocf<typename T::FaceType> &Base() const
             {
@@ -1157,9 +1038,6 @@ namespace tessellation
                 return tt2;
             }
         public:
-            // ovp Optional Vector Pointer
-            // Pointer to the base vector where each face element is stored.
-            // used to access to the vectors of the other optional members.
             vector_ocf<typename T::FaceType> *_ovp;
         };
 
@@ -1176,7 +1054,6 @@ namespace tessellation
             else return FaceType::HasFFAdjacency();
         }
 
-        /*----------------------------- VFADJ ------------------------------*/
         template <class T> class VFAdjOcf : public T {
         public:
             typename T::FacePointer &VFp(const int j) {
@@ -1209,7 +1086,6 @@ namespace tessellation
         private:
         };
 
-        /*----------------------------- FFADJ ------------------------------*/
         template <class T> class FFAdjOcf : public T {
         public:
             typename T::FacePointer &FFp(const int j) {
@@ -1268,11 +1144,6 @@ namespace tessellation
         };
         
 
-        /*------------------------- BitFlags -----------------------------------------*/
-        /*! \brief \em Component: Per face \b Flags
-
-        This component stores a 32 bit array of bit flags. These bit flags are used for keeping track of selection, deletion, visiting etc. \sa \ref flags for more details on common uses of flags.
-        */
         template <class T> class BitFlags : public T {
         public:
             BitFlags() :_flags(0) {}
@@ -1294,13 +1165,6 @@ namespace tessellation
             int  _flags;
         };
 
-        /*-------------------------- VertexRef ----------------------------------------*/
-        /*! \brief The references to the vertexes of a triangular face
-        *
-        * Stored as three pointers to the VertexType
-        */
-
-
         template <class T> class VertexRef : public T
         {
         public:
@@ -1318,7 +1182,7 @@ namespace tessellation
 
             inline typename T::VertexType*&V(const int j)
             {
-                assert(j >= 0 && j < 3);    /// \brief The pointer to the i-th vertex
+                assert(j >= 0 && j < 3);
                 return v[j];
             }
             inline typename T::VertexType *cV(const int j) const
@@ -1329,17 +1193,16 @@ namespace tessellation
 
             inline typename T::VertexType *&V0(const int j)
             {
-                return V(j);    /** \brief Return the pointer to the j-th vertex of the face. */
+                return V(j);
             }
             inline typename T::VertexType *&V1(const int j)
             {
-                return V((j + 1) % 3);    /** \brief Return the pointer to the ((j+1)%3)-th vertex of the face. */
+                return V((j + 1) % 3);
             }
             inline typename T::VertexType *&V2(const int j)
             {
-                return V((j + 2) % 3);    /** \brief Return the pointer to the ((j+2)%3)-th vertex of the face. */
+                return V((j + 2) % 3);
             }
-
 
         private:
             typename T::VertexType *v[3];
@@ -1349,25 +1212,15 @@ namespace tessellation
         class Pos
         {
         public:
-
-            /// The vertex type
             typedef typename FaceType::VertexType VertexType;
-            ///The Pos type
             typedef Pos<FaceType> PosType;
-            /// The scalar type
             typedef typename VertexType::ScalarType ScalarType;
-
-            /// Pointer to the face of the half-edge
             typename FaceType::FaceType *f;
-            /// Index of the edge
+
             int z;
-            /// Pointer to the vertex
             VertexType *v;
 
-            /// Default constructor
             Pos() : f(0), z(-1), v(0) {}
-            /// Constructor which associates the half-edge element with a face, its edge and its vertex
-            /// \note that the input must be consistent, e.g. it should hold that \c vp==fp->V0(zp) or \c vp==fp->V1(zp)
             Pos(FaceType *const fp, int const zp, VertexType *const vp)
             {
                 f = fp;
@@ -1393,7 +1246,6 @@ namespace tessellation
                     }
             }
 
-            // Official Access functions functions
             VertexType  *&V()
             {
                 return v;
@@ -1420,22 +1272,16 @@ namespace tessellation
                 return f;
             }
 
-            /// Operator to compare two half-edge
             inline bool operator == (PosType const &p) const
             {
                 return (f == p.f && z == p.z && v == p.v);
             }
 
-            /// Operator to compare two half-edge
             inline bool operator != (PosType const &p) const
             {
                 return (f != p.f || z != p.z || v != p.v);
             }
 
-
-            //Cambia Faccia lungo z
-            // e' uguale a FlipF solo che funziona anche per non manifold.
-            /// Change face via z
             void NextF()
             {
                 FaceType *t = f;
@@ -1443,25 +1289,14 @@ namespace tessellation
                 z = t->FFi(z);
             }
 
-            // Paolo Cignoni 19/6/99
-            // Si muove sulla faccia adiacente a f, lungo uno spigolo che
-            // NON e' j, e che e' adiacente a v
-            // in questo modo si scandiscono tutte le facce incidenti in un
-            // vertice f facendo Next() finche' non si ritorna all'inizio
-            // Nota che sul bordo rimbalza, cioe' se lo spigolo !=j e' di bordo
-            // restituisce sempre la faccia f ma con nj che e' il nuovo spigolo di bordo
-            // vecchi parametri:     	FaceType * & f, VertexType * v, int & j
-
-            /// It moves on the adjacent face incident to v, via a different edge that j
             void NextE()
             {
-                assert(f->V(z) == v || f->V(f->Next(z)) == v); // L'edge j deve contenere v
+                assert(f->V(z) == v || f->V(f->Next(z)) == v);
                 FlipE();
                 FlipF();
                 assert(f->V(z) == v || f->V(f->Next(z)) == v);
             }
-            // Cambia edge mantenendo la stessa faccia e lo stesso vertice
-            /// Changes edge maintaining the same face and the same vertex
+
             void FlipE()
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z + 0) % f->VN()) == v));
@@ -1470,17 +1305,9 @@ namespace tessellation
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z)) == v));
             }
 
-            // Cambia Faccia mantenendo lo stesso vertice e lo stesso edge
-            // Vale che he.flipf.flipf= he
-            // Se l'he e' di bordo he.flipf()==he
-            // Si puo' usare SOLO se l'edge e' 2manifold altrimenti
-            // si deve usare nextf
-
-            /// Changes face maintaining the same vertex and the same edge
             void FlipF()
             {
-                assert(f->FFp(z)->FFp(f->FFi(z)) == f);  // two manifoldness check
-                // Check that pos vertex is one of the current z-th edge and it is different from the vert opposite to the edge.
+                assert(f->FFp(z)->FFp(f->FFi(z)) == f);
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V((z)) == v));
                 FaceType *nf = f->FFp(z);
                 int nz = f->FFi(z);
@@ -1490,7 +1317,6 @@ namespace tessellation
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
             }
 
-            /// Changes vertex maintaining the same face and the same edge
             void FlipV()
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
@@ -1503,7 +1329,6 @@ namespace tessellation
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
             }
 
-            /// return the vertex that it should have if we make FlipV;
             VertexType *VFlip() const
             {
                 assert(f->cV(f->Prev(z)) != v && (f->cV(f->Next(z)) == v || f->cV(z) == v));
@@ -1511,72 +1336,46 @@ namespace tessellation
                 else			return f->cV(f->Next(z));
             }
 
-            /// return the face that it should have if we make FlipF;
             FaceType *FFlip() const
             {
-                //        assert( f->FFp(z)->FFp(f->FFi(z))==f );
-                //        assert(f->V(f->Prev(z))!=v);
-                //        assert(f->V(f->Next(z))==v || f->V((z+0)%f->VN())==v);
                 FaceType *nf = f->FFp(z);
                 return nf;
             }
 
-
-            // Trova il prossimo half-edge di bordo (nhe)
-            // tale che
-            // --nhe.f adiacente per vertice a he.f
-            // --nhe.v adiacente per edge di bordo a he.v
-            // l'idea e' che se he e' un half edge di bordo
-            // si puo scorrere tutto un bordo facendo
-            //
-            //		hei=he;
-            //		do
-            //			hei.Nextb()
-            //		while(hei!=he);
-
-            /// Finds the next half-edge border
             void NextB()
             {
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
-                assert(f->FFp(z) == f); // f is border along j
-                // Si deve cambiare faccia intorno allo stesso vertice v
-                //finche' non si trova una faccia di bordo.
+                assert(f->FFp(z) == f);
+
                 do
+                {
                     NextE();
+                }
                 while (!IsBorder());
 
-                // L'edge j e' di bordo e deve contenere v
                 assert(IsBorder() && (f->V(z) == v || f->V(f->Next(z)) == v));
 
                 FlipV();
                 assert(f->V(f->Prev(z)) != v && (f->V(f->Next(z)) == v || f->V(z) == v));
-                assert(f->FFp(z) == f); // f is border along j
+                assert(f->FFp(z) == f);
             }
 
-            /// Checks if the half-edge is of border
             bool IsBorder()const
             {
                 return face::IsBorder(*f, z);
             }
-
         };
 
-        /** Return a boolean that indicate if the j-th edge of the face is a border.
-        @param j Index of the edge
-        @return true if j is an edge of border, false otherwise
-        */
         template <class FaceType>
         inline bool IsBorder(FaceType const &f, const int j)
         {
             if (FaceType::HasFFAdjacency())
                 return f.cFFp(j) == &f;
-            //return f.IsBorder(j);
 
             assert(0);
             return true;
         }
 
-        ///*-------------------------- MARK  ----------------------------------*/
         template <class T> class MarkOcf : public T {
         public:
             inline int &IMark() {
@@ -1600,8 +1399,6 @@ namespace tessellation
             inline void InitIMark() { IMark() = 0; }
         };
 
-        /** @} */   // End Doxygen FaceComponentGroup
-
         template <class S>
         class PointDistanceBaseFunctor {
         public:
@@ -1621,19 +1418,16 @@ namespace tessellation
             }
         };
 
-        /// BASIC VERSION of the Point-face distance that does not require the EdgePlane Additional data.
-        /// Given a face and a point, returns the closest point of the face to p.
-
         template <class FaceType>
         bool PointDistanceBase(
-            const FaceType &f,																		/// the face to be tested
-            const tessellation::Point3<typename FaceType::ScalarType> & q, /// the point tested
-            typename FaceType::ScalarType & dist,                 /// bailout distance. It must be initialized with the max admittable value.
+            const FaceType &f,	
+            const tessellation::Point3<typename FaceType::ScalarType> & q,
+            typename FaceType::ScalarType & dist,
             tessellation::Point3<typename FaceType::ScalarType> & p)
         {
             typedef typename FaceType::ScalarType ScalarType;
 
-            if (f.cN() == Point3<ScalarType>(0, 0, 0)) // to correctly manage the case of degenerate triangles we consider them as segments.
+            if (f.cN() == Point3<ScalarType>(0, 0, 0))
             {
                 Box3<ScalarType> bb;
                 f.GetBBox(bb);
@@ -1642,7 +1436,7 @@ namespace tessellation
                 ScalarType d;
                 if (bb.Diag() > 0)
                     tessellation::SegmentPointDistance<ScalarType>(degenTri, q, closest, d);
-                else // very degenerate triangle (just a point)
+                else
                 {
                     closest = bb.min;
                     d = Distance(q, closest);
@@ -1658,12 +1452,11 @@ namespace tessellation
             fPlane.Init(f.cP(0), f.cN());
             const ScalarType EPS = ScalarType(0.000001);
             ScalarType b, b0, b1, b2;
-            // Calcolo distanza punto piano
+
             ScalarType d = SignedDistancePlanePoint(fPlane, q);
-            if (d > dist || d < -dist)			// Risultato peggiore: niente di fatto
+            if (d > dist || d < -dist)
                 return false;
 
-            // Projection of query point onto the triangle plane
             p = q - fPlane.Direction()*d;
 
             Point3<ScalarType> fEdge[3];
@@ -1679,15 +1472,15 @@ namespace tessellation
                 else bestAxis = 2;
             }
             else {
-                if (fabs(f.cN()[1]) > fabs(f.cN()[2])) bestAxis = 1; /* 1 > 0 ? 2 */
-                else bestAxis = 2; /* 2 > 1 ? 2 */
+                if (fabs(f.cN()[1]) > fabs(f.cN()[2])) bestAxis = 1;
+                else bestAxis = 2;
             }
 
             ScalarType scaleFactor;
 
             switch (bestAxis)
             {
-            case 0:  /************* X AXIS **************/
+            case 0:
                 scaleFactor = 1 / fPlane.Direction()[0];
                 fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
 
@@ -1719,13 +1512,12 @@ namespace tessellation
                     if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
                     else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
                     else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-                    //printf("Warning area:%g %g %g %g thr:%g bt:%g\n",Area(), b0,b1,b2,EPSILON*Area(),bt);
                     if (dist > bt) { dist = bt; return true; }
                     else return false;
                 }
                 break;
 
-            case 1:  /************* Y AXIS **************/
+            case 1:
                 scaleFactor = 1 / fPlane.Direction()[1];
                 fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
 
@@ -1756,13 +1548,12 @@ namespace tessellation
                     if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
                     else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
                     else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-                    //printf("Warning area:%g %g %g %g thr:%g bt:%g\n",Area(), b0,b1,b2,EPSILON*Area(),bt);
                     if (dist > bt) { dist = bt; return true; }
                     else return false;
                 }
                 break;
 
-            case 2:  /************* Z AXIS **************/
+            case 2:
                 scaleFactor = 1 / fPlane.Direction()[2];
                 fEdge[0] *= scaleFactor; fEdge[1] *= scaleFactor; fEdge[2] *= scaleFactor;
 
@@ -1793,176 +1584,128 @@ namespace tessellation
                     if (b == b0) 	    bt = PSDist(q, f.cV(1)->cP(), f.cV(2)->cP(), p);
                     else if (b == b1) 	bt = PSDist(q, f.cV(2)->cP(), f.cV(0)->cP(), p);
                     else { assert(b == b2); bt = PSDist(q, f.cV(0)->cP(), f.cV(1)->cP(), p); }
-                    //printf("Warning area:%g %g %g %g thr:%g bt:%g\n",Area(), b0,b1,b2,EPSILON*Area(),bt);
 
                     if (dist > bt) { dist = bt; return true; }
                     else return false;
                 }
                 break;
-            default: assert(0); // if you get this assert it means that you forgot to set the required UpdateFlags<MeshType>::FaceProjection(m);
+            default: assert(0);
 
             }
 
             dist = ScalarType(fabs(d));
-            //dist = Distance(p,q);
             return true;
         }
 
-    } // end namespace face
+    }
 
-    /* The base class form which we start to add our components.
-    it has the empty definition for all the standard members (coords, color flags)
-    Note:
-    in order to avoid both virtual classes and ambiguous definitions all
-    the subsequent overrides must be done in a sequence of derivation.
-
-    In other words we cannot derive and add in a single derivation step
-    (with multiple ancestor), both the real (non-empty) normal and color but
-    we have to build the type a step a time (deriving from a single ancestor at a time).
-
-
-    */
     template <class UserTypes>
     class FaceBase : public
         face::EmptyCore< FaceTypeHolder <UserTypes> >
     {
     };
-
-
-    /* The Real Big Face class;
-
-    The class __FaceArityMax__ is the one that is the Last to be derived,
-    and therefore is the only one to know the real members
-    (after the many overrides) so all the functions with common behaviour
-    using the members defined in the various Empty/nonEmpty component classes
-    MUST be defined here.
-
-    I.e. IsD() that uses the overridden Flags() member must be defined here.
-
-    */
-
+    
     template < class UserTypes,
         template <typename> class A, template <typename> class B, template <typename> class C,
         template <typename> class D, template <typename> class E,
         template <typename> class F, template <typename> class G>
     class FaceArityMax : public  Arity7<FaceBase<UserTypes>, A, B, C, D, E, F, G>
     {
-
     public:
         typedef typename  FaceArityMax::ScalarType ScalarType;
-        // ----- Flags stuff -----
-
         enum
         {
-            DELETED = 0x00000001,		// Face is deleted from the mesh
-            NOTREAD = 0x00000002,		// Face of the mesh is not readable
-            NOTWRITE = 0x00000004,		// Face of the mesh is not writable
-            VISITED = 0x00000010,		// Face has been visited. Usualy this is a per-algorithm used bit.
-            SELECTED = 0x00000020,		// Face is selected. Algorithms should try to work only on selected face (if explicitly requested)
-            // Border _flags, it is assumed that BORDERi = BORDER0<<i
+            DELETED = 0x00000001,	
+            NOTREAD = 0x00000002,	
+            NOTWRITE = 0x00000004,	
+            VISITED = 0x00000010,	
+            SELECTED = 0x00000020,	
             BORDER0 = 0x00000040,
             BORDER1 = 0x00000080,
             BORDER2 = 0x00000100,
             BORDER012 = BORDER0 | BORDER1 | BORDER2,
- 
-
-            // Faux edges. (semantics: when a mesh is polygonal, edges which are inside a polygonal face are "faux"
             FAUX0 = 0x00040000,
             FAUX1 = 0x00080000,
             FAUX2 = 0x00100000,
             FAUX012 = FAUX0 | FAUX1 | FAUX2,
-            // First user bit
             USER0 = 0x00200000
         };
 
-
-        ///  checks if the Face is deleted
         bool IsD() const
         {
             return (this->cFlags() & DELETED) != 0;
         }
-        ///  checks if the Face is readable
+
         bool IsR() const
         {
             return (this->cFlags() & NOTREAD) == 0;
         }
-        ///  checks if the Face is modifiable
+
         bool IsW() const
         {
             return (this->cFlags() & NOTWRITE) == 0;
         }
-        /// This funcion checks whether the Face is both readable and modifiable
+
         bool IsRW() const
         {
             return (this->cFlags() & (NOTREAD | NOTWRITE)) == 0;
         }
-        ///  checks if the Face is Modified
+
         bool IsS() const
         {
             return (this->cFlags() & SELECTED) != 0;
         }
-        ///  checks if the Face is Modified
+
         bool IsV() const
         {
             return (this->cFlags() & VISITED) != 0;
         }
 
-        /** Set the flag value
-        @param flagp Valore da inserire nel flag
-        */
         void SetFlags(int flagp)
         {
             this->Flags() = flagp;
         }
 
-        /** Set the flag value
-        @param flagp Valore da inserire nel flag
-        */
         void ClearFlags()
         {
             this->Flags() = 0;
         }
         
-        ///  select the Face
         void SetS()
         {
             this->Flags() |= SELECTED;
         }
-        /// Un-select a Face
+
         void ClearS()
         {
             this->Flags() &= ~SELECTED;
         }
-        ///  select the Face
+
         void SetV()
         {
             this->Flags() |= VISITED;
         }
-        /// Un-select a Face
+
         void ClearV()
         {
             this->Flags() &= ~VISITED;
         }
 
-        /// This function checks if the face is selected
         bool IsB(int i) const
         {
             return (this->cFlags() & (BORDER0 << i)) != 0;
         }
-        /// This function select the face
+
         void SetB(int i)
         {
             this->Flags() |= (BORDER0 << i);
         }
-        /// This funcion execute the inverse operation of SetS()
+
         void ClearB(int i)
         {
             this->Flags() &= (~(BORDER0 << i));
         }
 
-        /// This function checks if a given side of the face is a feature/internal edge
-        /// it is used by some importer to mark internal
-        /// edges of polygonal faces that have been triangulated
         bool IsF(int i) const
         {
             return (this->cFlags() & (FAUX0 << i)) != 0;
@@ -1971,12 +1714,12 @@ namespace tessellation
         {
             return (this->cFlags() & (FAUX0 | FAUX1 | FAUX2)) != 0;
         }
-        /// This function select the face
+
         void SetF(int i)
         {
             this->Flags() |= (FAUX0 << i);
         }
-        /// This funcion execute the inverse operation of SetS()
+
         void ClearF(int i)
         {
             this->Flags() &= (~(FAUX0 << i));
@@ -1999,8 +1742,6 @@ namespace tessellation
         }
     };
 
-
-
     template < class UserTypes,
         template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
         template <typename> class C = DefaultDeriver, template <typename> class D = DefaultDeriver,
@@ -2012,5 +1753,4 @@ namespace tessellation
         typedef AllTypes::AFaceType IAm;
         typedef UserTypes TypesPool;
     };
-
 }
