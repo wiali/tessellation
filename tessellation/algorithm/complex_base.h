@@ -34,7 +34,6 @@ namespace tessellation
     // dummy mesh
 
     struct _Vertex;
-    struct _Edge;
     struct _Face;
 
     struct DummyTypes
@@ -51,11 +50,6 @@ namespace tessellation
             typedef A VertexType;
             typedef VertexType *VertexPointer;
         };
-        template <class T> struct AsEdgeType : public T
-        {
-            typedef A EdgeType;
-            typedef EdgeType 	*EdgePointer;
-        };
         template <class T> struct AsFaceType : public T
         {
             typedef A FaceType;
@@ -65,9 +59,8 @@ namespace tessellation
 
     template < template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
              template <typename> class C = DefaultDeriver >
-    class UsedTypes : public Arity6 < DummyTypes,
+    class UsedTypes : public Arity5 < DummyTypes,
         Use<  Vertex	<UsedTypes< A, B, C> > > :: template AsVertexType,
-            Use<  Edge		<UsedTypes< A, B, C> > > :: template AsEdgeType,
               Use<  Face		<UsedTypes< A, B, C> > > :: template AsFaceType,
                         A, B, C
                         >
@@ -76,12 +69,10 @@ namespace tessellation
 
     struct _UsedTypes : public UsedTypes <
             Use<_Vertex>::AsVertexType,
-            Use<_Edge  >::AsEdgeType,
             Use<_Face  >::AsFaceType
             > {};
 
     struct _Vertex : public  Vertex<_UsedTypes> {};
-    struct _Edge : public  Edge<_UsedTypes> {};
     struct _Face : public  Face<_UsedTypes> {};
 
 
@@ -232,7 +223,6 @@ namespace tessellation
 
             typedef bool ScalarType;
             typedef std::vector< typename TYPESPOOL::VertexType  >	CONTV;
-            typedef std::vector< typename TYPESPOOL::EdgeType  >		CONTE;
             typedef std::vector< typename TYPESPOOL::FaceType >		CONTF;
 
             typedef CONTV									VertContainer;
@@ -243,11 +233,6 @@ namespace tessellation
             typedef typename CONTV::iterator				VertexIterator;
             typedef typename CONTV::const_iterator	ConstVertexIterator;
 
-            typedef CONTE										EdgeContainer;
-            typedef typename CONTE::value_type					EdgeType;
-            typedef typename  TYPESPOOL::EdgePointer	EdgePointer;
-            typedef typename CONTE::iterator				EdgeIterator;
-            typedef typename CONTE::const_iterator	ConstEdgeIterator;
 
             typedef CONTF														FaceContainer;
             typedef typename CONTF::value_type					FaceType;
@@ -292,10 +277,7 @@ namespace tessellation
                 typedef int IAm;
             };
         };
-        /** \brief The official \b mesh class
 
-        As explained in \ref basic_concepts, this class is templated over a list of container of simplexes (like vertex, face, edges)
-         */
 
         template < class Container0 = DummyContainer, class Container1 = DummyContainer, class Container2 = DummyContainer, class Container3 = DummyContainer >
         class TriMesh
@@ -305,7 +287,6 @@ namespace tessellation
 
             typedef typename TriMesh::ScalarType		ScalarType;
             typedef typename TriMesh::VertContainer VertContainer;
-            typedef typename TriMesh::EdgeContainer EdgeContainer;
             typedef typename TriMesh::FaceContainer FaceContainer;
 
             // types for vertex
@@ -316,11 +297,6 @@ namespace tessellation
             typedef typename TriMesh::VertexIterator				VertexIterator;
             typedef typename TriMesh::ConstVertexIterator		ConstVertexIterator;
 
-            // types for edge
-            typedef typename TriMesh::EdgeType							EdgeType;
-            typedef typename TriMesh::EdgePointer						EdgePointer;
-            typedef typename TriMesh::EdgeIterator					EdgeIterator;
-            typedef typename TriMesh::ConstEdgeIterator			ConstEdgeIterator;
 
             //types for face
             typedef typename TriMesh::FaceType							FaceType;
@@ -344,17 +320,7 @@ namespace tessellation
             {
                 return vn;
             }
-
-            /// Container of edges, usually a vector.
-            EdgeContainer edge;
-            /// Current number of edges; this member is for internal use only. You should always use the EN() member
-            int en;
-            /// Current number of edges
-            inline int EN() const
-            {
-                return en;
-            }
-
+            
             /// Container of faces, usually a vector.
             FaceContainer face;
             /// Current number of faces; this member is for internal use only. You should always use the FN() member
@@ -363,14 +329,6 @@ namespace tessellation
             inline int FN() const
             {
                 return fn;
-            }
-
-            /// Current number of halfedges; this member is for internal use only. You should always use the HN() member
-            int hn;
-            /// Current number of halfedges;
-            inline int HN() const
-            {
-                return hn;
             }
 
             /// Nomi di textures
@@ -383,7 +341,6 @@ namespace tessellation
             Box3<typename TriMesh::VertexType::CoordType::ScalarType> bbox;
 
             std::set< PointerToAttribute > vert_attr;
-            std::set< PointerToAttribute > edge_attr;
             std::set< PointerToAttribute > face_attr;
             std::set< PointerToAttribute > mesh_attr;
             
@@ -496,20 +453,17 @@ namespace tessellation
                     (*fi).Dealloc();
                 vert.clear();
                 face.clear();
-                edge.clear();
                 //    textures.clear();
                 //    normalmaps.clear();
                 vn = 0;
-                en = 0;
                 fn = 0;
-                hn = 0;
                 imark = 0;
                 C() = Color4b::Gray;
             }
             
             bool IsEmpty() const
             {
-                return vert.empty() && edge.empty() && face.empty();
+                return vert.empty() && face.empty();
             }
 
             int &SimplexNumber()
@@ -543,14 +497,7 @@ namespace tessellation
         {
             return VertexType::HasVEAdjacency();
         }
-        template < class EdgeType  > bool   EdgeVectorHasVEAdjacency(const std::vector<EdgeType  > &)
-        {
-            return EdgeType::HasVEAdjacency();
-        }
-        template < class EdgeType  > bool   EdgeVectorHasEEAdjacency(const std::vector<EdgeType> &)
-        {
-            return EdgeType::HasEEAdjacency();
-        }
+
         template < class FaceType  > bool   FaceVectorHasVFAdjacency(const std::vector<FaceType  > &)
         {
             return FaceType::HasVFAdjacency();
@@ -564,52 +511,21 @@ namespace tessellation
         {
             return tri::VertexVectorHasVEAdjacency(m.vert);
         }
-        template < class TriMeshType> bool   HasPerEdgeVEAdjacency     (const TriMeshType &m)
-        {
-            return tri::EdgeVectorHasVEAdjacency  (m.edge);
-        }
+
         template < class TriMeshType> bool   HasPerFaceVFAdjacency     (const TriMeshType &m)
         {
             return tri::FaceVectorHasVFAdjacency  (m.face);
         }
-
-
-        template < class VertexType> bool VertexVectorHasPerVertexColor       (const std::vector<VertexType> &)
-        {
-            return VertexType::HasColor       ();
-        }
+        
         template < class VertexType> bool VertexVectorHasPerVertexFlags       (const std::vector<VertexType> &)
         {
             return VertexType::HasFlags       ();
         }
 
-        template < class TriMeshType> bool HasPerVertexColor       (const TriMeshType &m)
-        {
-            return tri::VertexVectorHasPerVertexColor       (m.vert);
-        }
         template < class TriMeshType> bool HasPerVertexFlags       (const TriMeshType &m)
         {
             return tri::VertexVectorHasPerVertexFlags       (m.vert);
         }
-
-        template < class EdgeType> bool EdgeVectorHasPerEdgeColor       (const std::vector<EdgeType> &)
-        {
-            return EdgeType::HasColor       ();
-        }
-        template < class EdgeType> bool EdgeVectorHasPerEdgeFlags       (const std::vector<EdgeType> &)
-        {
-            return EdgeType::HasFlags       ();
-        }
-
-        template < class TriMeshType> bool HasPerEdgeColor       (const TriMeshType &m)
-        {
-            return tri::EdgeVectorHasPerEdgeColor       (m.edge);
-        }
-        template < class TriMeshType> bool HasPerEdgeFlags       (const TriMeshType &m)
-        {
-            return tri::EdgeVectorHasPerEdgeFlags       (m.edge);
-        }
-
 
         template < class FaceType>    bool FaceVectorHasPerFaceFlags  (const std::vector<FaceType> &)
         {
@@ -626,10 +542,6 @@ namespace tessellation
         template < class FaceType>    bool FaceVectorHasPerFaceMark   (const std::vector<FaceType> &)
         {
             return FaceType::HasMark   ();
-        }
-        template < class FaceType>    bool FaceVectorHasPerFaceQuality(const std::vector<FaceType> &)
-        {
-            return FaceType::HasQuality();
         }
         template < class FaceType>    bool FaceVectorHasFFAdjacency   (const std::vector<FaceType> &)
         {
@@ -673,10 +585,6 @@ namespace tessellation
         {
             return tri::FaceVectorHasFFAdjacency   (m.face);
         }
-        template < class TriMeshType> bool HasEEAdjacency   (const TriMeshType &m)
-        {
-            return tri::EdgeVectorHasEEAdjacency   (m.edge);
-        }
         template < class TriMeshType> bool HasFEAdjacency   (const TriMeshType &m)
         {
             return tri::FaceVectorHasFEAdjacency   (m.face);
@@ -691,35 +599,13 @@ namespace tessellation
             return tri::FaceVectorHasVFAdjacency(m.face) 
                 && tri::VertexVectorHasVFAdjacency(m.vert);
         }
-        template < class TriMeshType> bool HasVEAdjacency   (const TriMeshType &m)
-        {
-            return tri::EdgeVectorHasVEAdjacency   (m.edge) && tri::VertexVectorHasVEAdjacency(m.vert);
-        }
 
         template < class  CType0, class CType1>
         bool HasVHAdjacency (const TriMesh < CType0, CType1> & /*m*/)
         {
             return TriMesh < CType0 , CType1>::VertContainer::value_type::HasVHAdjacency();
         }
-
-        template < class  CType0, class CType1>
-        bool HasEVAdjacency (const TriMesh < CType0, CType1> & /*m*/)
-        {
-            return TriMesh < CType0 , CType1>::EdgeType::HasEVAdjacency();
-        }
-
-        template < class  CType0, class CType1>
-        bool HasEFAdjacency (const TriMesh < CType0, CType1> & /*m*/)
-        {
-            return TriMesh < CType0 , CType1>::EdgeType::HasEFAdjacency();
-        }
-
-        template < class  CType0, class CType1>
-        bool HasEHAdjacency (const TriMesh < CType0, CType1> & /*m*/)
-        {
-            return TriMesh < CType0 , CType1>::EdgeType::HasEHAdjacency();
-        }
-
+        
         template < class TriMeshType> bool HasPerFaceMark(const TriMeshType &m) { return tri::FaceVectorHasPerFaceMark(m.face); }
 
         template <class MeshType> void RequirePerVertexFlags(MeshType &m) 
@@ -780,11 +666,6 @@ namespace tessellation
         {
             return fp - &*m.face.begin();
         }
-        template<class MeshType>
-        size_t Index(MeshType &m, const typename MeshType::EdgeType  *e)
-        {
-            return e - &*m.edge.begin();
-        }
 
         template <class MeshType, class ATTR_CONT>
         void ReorderAttribute(ATTR_CONT &c, std::vector<size_t> & newVertIndex, MeshType & /* m */) {
@@ -818,11 +699,6 @@ namespace tessellation
             typedef typename MeshType::VertexIterator VertexIterator;
             typedef typename MeshType::VertContainer VertContainer;
 
-            typedef typename MeshType::EdgeType     EdgeType;
-            typedef typename MeshType::EdgePointer  EdgePointer;
-            typedef typename MeshType::EdgeIterator EdgeIterator;
-            typedef typename MeshType::EdgeContainer EdgeContainer;
-
             typedef typename MeshType::FaceType       FaceType;
             typedef typename MeshType::FacePointer    FacePointer;
             typedef typename MeshType::FaceIterator   FaceIterator;
@@ -836,17 +712,6 @@ namespace tessellation
             typedef typename std::set<PointerToAttribute>::const_iterator AttrConstIterator;
             typedef typename std::set<PointerToAttribute >::iterator PAIte;
 
-            /*!
-            \brief Accessory class to update pointers after eventual reallocation caused by adding elements.
-
-            This class is used whenever you trigger some allocation operation that can cause the invalidation of the pointers to mesh elements.
-            Typical situations are when you are allocating new vertexes, edges, halfedges of faces or when you compact
-            their containers to get rid of deleted elements.
-            This object allows you to update an invalidate pointer immediately after an action that invalidate it.
-            \note It can also be used to prevent any update of the various internal pointers caused by an invalidation.
-            This can be useful in case you are building all the internal connections by hand as it happens in a importer;
-            \sa \ref allocation
-            */
             template<class SimplexPointerType>
             class PointerUpdater
             {
@@ -932,17 +797,6 @@ namespace tessellation
                             for (int i = 0; i < (*fi).VN(); ++i)
                                 if ((*fi).cV(i) != 0) pu.Update((*fi).V(i));
 
-                    for (EdgeIterator ei = m.edge.begin(); ei != m.edge.end(); ++ei)
-                        if (!(*ei).IsD())
-                        {
-                            if (HasEVAdjacency(m))
-                            {
-                                pu.Update((*ei).V(0));
-                                pu.Update((*ei).V(1));
-                            }
-                            //							if(HasEVAdjacency(m))   pu.Update((*ei).EVp());
-                        }
-                    // e poiche' lo spazio e' cambiato si ricalcola anche last da zero
                 }
                 size_t siz = (size_t)(m.vert.size() - n);
 
@@ -1015,18 +869,6 @@ namespace tessellation
                 return f_ret;
             }
 
-            /** \brief Function to add n faces to the mesh.
-            This is the only full featured function that is able to manage correctly
-            all the official internal pointers of the mesh (like the VF and FF adjacency relations)
-            \warning Calling this function can cause the invalidation of any not-managed FacePointer
-            just because we resize the face vector.
-            If you have such pointers you need to update them by mean of the PointerUpdater object.
-            \sa PointerUpdater
-            \param m the mesh to be modified
-            \param n the number of elements to be added
-            \param pu  a PointerUpdater initialized so that it can be used to update pointers to edges that could have become invalid after this adding.
-            \retval the iterator to the first element added.
-            */
             static FaceIterator AddFaces(MeshType &m, size_t n, PointerUpdater<FacePointer> &pu)
             {
                 pu.Clear();
@@ -1074,14 +916,6 @@ namespace tessellation
                             if (!(*vi).IsD() && (*vi).cVFp() != 0)
                                 pu.Update((*vi).VFp());
                     }
-
-                    if (HasEFAdjacency(m))
-                    {
-                        for (EdgeIterator ei = m.edge.begin(); ei != m.edge.end(); ++ei)
-                            if (!(*ei).IsD() && (*ei).cEFp() != 0)
-                                pu.Update((*ei).EFp());
-                    }
-
                 }
                 return firstNewFace;
             }
@@ -1360,15 +1194,6 @@ namespace tessellation
                             }
                             else m.vert[pu.remap[i]].VFClear();
                         }
-                        if (HasVEAdjacency(m))
-                        {
-                            if (m.vert[i].IsVEInitialized())
-                            {
-                                m.vert[pu.remap[i]].VEp() = m.vert[i].cVEp();
-                                m.vert[pu.remap[i]].VEi() = m.vert[i].cVEi();
-                            }
-                            else m.vert[pu.remap[i]].VEClear();
-                        }
                     }
                 }
 
@@ -1398,26 +1223,10 @@ namespace tessellation
                             assert(pu.oldBase <= (*fi).V(i) && oldIndex < pu.remap.size());
                             (*fi).V(i) = pu.newBase + pu.remap[oldIndex];
                         }
-                // Loop on the edges to update the pointers EV relation
-                if (HasEVAdjacency(m))
-                    for (EdgeIterator ei = m.edge.begin(); ei != m.edge.end(); ++ei)
-                        if (!(*ei).IsD())
-                        {
-                            pu.Update((*ei).V(0));
-                            pu.Update((*ei).V(1));
-                        }
             }
 
         }; // end Allocator class
 
-
-           /// \brief Management, updating and computation of per-vertex, per-face, and per-wedge normals.
-           /**
-           This class is used to compute or to update the normals that can be stored in the various component of a mesh.
-           A number of different algorithms for computing per vertex normals are present.
-
-           It must be included \b after complex.h
-           */
 
         template <class ComputeMeshType>
         class   UpdateNormal
@@ -1470,15 +1279,6 @@ namespace tessellation
             }
 
 
-            ///  \brief Calculates the vertex normal as an angle weighted average. It does not need or exploit current face normals.
-            /**
-            The normal of a vertex v computed as a weighted sum f the incident face normals.
-            The weight is simlply the angle of the involved wedge.  Described in:
-
-            G. Thurmer, C. A. Wuthrich
-            "Computing vertex normals from polygonal facets"
-            Journal of Graphics Tools, 1998
-            */
             static void PerVertexAngleWeighted(ComputeMeshType &m)
             {
                 PerVertexClear(m);

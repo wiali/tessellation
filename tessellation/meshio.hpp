@@ -151,7 +151,15 @@ namespace MeshSpace
             for (int i=0; i < nVertexs; ++i)
             {
                 QVector3D pt = raw_vertices[i];
-                ivp[i] = &*vi; vi->P() = CMeshO::CoordType(pt[0], pt[1], pt[2]); ++vi;
+                ivp[i] = &*vi; vi->P() = CMeshO::CoordType(pt[0], pt[1], pt[2]);
+
+                vi->T().u() = uvs[i][0];
+                vi->T().v() = uvs[i][1];
+                vi->T().n() = 0;
+
+                vi->N() = tessellation::Point3f(normals[i][0], normals[i][1], normals[i][2]);
+
+                ++vi;
             }
 
             CMeshO::FacePointer *ifp = new CMeshO::FacePointer[nFaces];
@@ -165,22 +173,22 @@ namespace MeshSpace
                 fi->V(1) = ivp[nIndex2];
                 fi->V(2) = ivp[nIndex3];
 
-                fi->V(0)->T().u() = uvs[nIndex1][0];
-                fi->V(0)->T().v() = uvs[nIndex1][1];
-                fi->V(0)->T().n() = 0;
+                //fi->V(0)->T().u() = uvs[nIndex1][0];
+                //fi->V(0)->T().v() = uvs[nIndex1][1];
+                //fi->V(0)->T().n() = 0;
 
-                fi->V(1)->T().u() = uvs[nIndex2][0];
-                fi->V(1)->T().v() = uvs[nIndex2][1];
-                fi->V(1)->T().n() = 0;
+                //fi->V(1)->T().u() = uvs[nIndex2][0];
+                //fi->V(1)->T().v() = uvs[nIndex2][1];
+                //fi->V(1)->T().n() = 0;
 
-                fi->V(2)->T().u() = uvs[nIndex3][0];
-                fi->V(2)->T().v() = uvs[nIndex3][1];
-                fi->V(2)->T().n() = 0;
+                //fi->V(2)->T().u() = uvs[nIndex3][0];
+                //fi->V(2)->T().v() = uvs[nIndex3][1];
+                //fi->V(2)->T().n() = 0;
 
-                fi->V(0)->N().Import(tessellation::Point3f(normals[nIndex1][0], normals[nIndex1][1], normals[nIndex1][2]));
+ /*               fi->V(0)->N().Import(tessellation::Point3f(normals[nIndex1][0], normals[nIndex1][1], normals[nIndex1][2]));
                 fi->V(1)->N().Import(tessellation::Point3f(normals[nIndex2][0], normals[nIndex2][1], normals[nIndex2][2]));
                 fi->V(2)->N().Import(tessellation::Point3f(normals[nIndex3][0], normals[nIndex3][1], normals[nIndex3][2]));
-
+*/
                 ++fi;
 
             }

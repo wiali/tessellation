@@ -99,13 +99,6 @@ namespace tessellation
         template <typename> class G>
     class Arity7 : public G<Arity6<Base, A, B, C, D, E, F> > {};
 
-    template <
-        class Base,
-        template <typename> class A, template <typename> class B,
-        template <typename> class C, template <typename> class D,
-        template <typename> class E, template <typename> class F,
-        template <typename> class G, template <typename> class H>
-    class Arity8 : public H<Arity7<Base, A, B, C, D, E, F,G> > {};
 
     // chain with 2 template arguments on the derivers
     template <
@@ -446,37 +439,8 @@ namespace tessellation
         return Distance(p, q);
     }
 
-    template <class P3ScalarType>
-    void GetUV(Point3<P3ScalarType> &n, Point3<P3ScalarType> &u, Point3<P3ScalarType> &v, Point3<P3ScalarType> up = (Point3<P3ScalarType>(0, 1, 0)))
-    {
-        n.Normalize();
-        const double LocEps = double(1e-7);
-        u = n ^ up;
-        double len = u.Norm();
-        if (len < LocEps)
-        {
-            if (fabs(n[0]) < fabs(n[1]))
-            {
-                if (fabs(n[0]) < fabs(n[2])) up = Point3<P3ScalarType>(1, 0, 0); // x is the min
-                else up = Point3<P3ScalarType>(0, 0, 1); // z is the min
-            }
-            else
-            {
-                if (fabs(n[1]) < fabs(n[2])) up = Point3<P3ScalarType>(0, 1, 0); // y is the min
-                else up = Point3<P3ScalarType>(0, 0, 1); // z is the min
-            }
-            u = n ^ up;
-        }
-        u.Normalize();
-        v = n ^ u;
-        v.Normalize();
-    }
-
-
-    typedef Point3<short>  Point3s;
     typedef Point3<int>	   Point3i;
     typedef Point3<float>  Point3f;
-    typedef Point3<double> Point3d;
 
     template <class T> class Point4
     {
@@ -851,7 +815,7 @@ namespace tessellation
     }
 
 
-    template <class BoxScalarType>
+        template <class BoxScalarType>
     class Box3
     {
     public:
@@ -891,7 +855,7 @@ namespace tessellation
             min.Z() = 1; max.Z() = -1;
         }
         /** Modify the current bbox to contain also the passed box.
-        *  Adding a null bounding box does nothing
+         *  Adding a null bounding box does nothing
         */
         void Add(Box3<BoxScalarType> const & b)
         {
@@ -939,7 +903,7 @@ namespace tessellation
         }
 
         /** true if the point belong to the open box (open on the max side)
-        * e.g. if p in [min,max)
+         * e.g. if p in [min,max)
         */
         bool IsInEx(Point3<BoxScalarType> const & p) const
         {
@@ -962,7 +926,7 @@ namespace tessellation
 
     typedef Box3<int>	 Box3i;
     typedef Box3<float>  Box3f;
-
+    
 
     /*@}*/
 
@@ -1063,22 +1027,22 @@ namespace tessellation
         }
     }
 
-    /** \addtogroup space */
-    /*@{*/
-    /**
-    Templated class for 2D planes in 3D spaces.
-    This is the class for infinite planes in 3D space. A Plane is stored just as a Point3 and a scalar:
-    * a direction (not necessarily normalized),
-    * an offset from the origin
+       /** \addtogroup space */
+       /*@{*/
+       /**
+       Templated class for 2D planes in 3D spaces.
+       This is the class for infinite planes in 3D space. A Plane is stored just as a Point3 and a scalar:
+       * a direction (not necessarily normalized),
+       * an offset from the origin
 
-    Just to be clear, given a point P on a plane it always holds:
+       Just to be clear, given a point P on a plane it always holds:
 
-    plane.Direction().dot(P) == plane.Offset()
+       plane.Direction().dot(P) == plane.Offset()
 
 
-    @param T (template parameter) Specifies the type of scalar used to represent coords.
-    @param NORM: if on, the direction is always Normalized
-    */
+       @param T (template parameter) Specifies the type of scalar used to represent coords.
+       @param NORM: if on, the direction is always Normalized
+       */
     template <class T, bool NORM = true> class Plane3 {
     public:
         typedef T ScalarType;
@@ -1134,5 +1098,5 @@ namespace tessellation
     template<class T> T SignedDistancePlanePoint(const Plane3<T, true> & plane, const Point3<T> & point)
     {
         return plane.Direction().dot(point) - plane.Offset();
-    }
+    }    
 }

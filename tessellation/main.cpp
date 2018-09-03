@@ -158,6 +158,8 @@ void updateUVs(CMeshO& mesh, CMeshO& mesh_old)
 
 static int copyMesh(CMeshO& mesh_src, CMeshO& mesh_dest)
 {
+    //mesh_dest.vert.EnableTexCoord();
+
     mesh_dest.vert.EnableTexCoord();
 
     size_t nVertexs = mesh_src.vert.size();

@@ -116,9 +116,6 @@ namespace tessellation
                 he.FlipV();
                 r = he.v;
 
-                if( tri::HasPerVertexColor(m))
-                    nv.C().lerp(ep.f->V(ep.z)->C(), ep.f->V1(ep.z)->C(), .5f);
-
                 if (he.IsBorder())
                 {
                     proj.addVertex(*l, 0.5);
@@ -319,19 +316,8 @@ namespace tessellation
                         if ( !(*fi).V(i)->IsUserBit(evenFlag) && ! (*fi).V(i)->IsD() )
                         {
                             (*fi).V(i)->SetUserBit(evenFlag);
-                            //	use face selection, not vertex selection, to be coherent with RefineE
-                            //if (RefineSelected && !(*fi).V(i)->IsS() )
-                            //	break;
-                            face::Pos<typename MESH_TYPE::FaceType>aux (&(*fi), i);
-                            if( tri::HasPerVertexColor(m) )
-                            {
-                                (*fi).V(i)->C().lerp((*fi).V0(i)->C() , (*fi).V1(i)->C(), 0.5f);
-                            }
 
-                            //if (cbEven) {
-                            //    (*cbEven)(int(100.0f * (float)j / (float)m.fn),"Refining");
-                            //    j++;
-                            //}
+                            face::Pos<typename MESH_TYPE::FaceType>aux (&(*fi), i);
                             size_t index = tri::Index(m, (*fi).V(i));
                             updatedList[index] = true;
                             even(newEven[index], aux);

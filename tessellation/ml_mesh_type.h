@@ -28,6 +28,7 @@ class CVertexO  : public tessellation::Vertex< CUsedTypesO,
 >{    
 };
 
+
 // Each face needs 32 byte, on 32bit arch. and 48 byte on 64bit arch.
 class CFaceO : public tessellation::Face<  CUsedTypesO,
     tessellation::face::InfoOcf,              /* 4b */
