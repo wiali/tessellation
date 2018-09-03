@@ -304,16 +304,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="algorithm\box3.h" />
-    <ClInclude Include="algorithm\closest.h" />
     <ClInclude Include="algorithm\complex_base.h" />
-    <ClInclude Include="algorithm\grid_closest.h" />
     <ClInclude Include="algorithm\grid_static_ptr.h" />
     <ClInclude Include="algorithm\refine.h" />
     <ClInclude Include="algorithm\refine_loop.h" />
     <ClInclude Include="algorithm\simplex_base.h" />
     <ClInclude Include="algorithm\space_base.h" />
-    <ClInclude Include="linalgebra.hpp" />
     <ClInclude Include="meshio.hpp" />
     <ClInclude Include="ml_mesh_type.h" />
     <ClInclude Include="stdafx.h" />

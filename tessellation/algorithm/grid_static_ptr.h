@@ -27,8 +27,6 @@
 #include <algorithm>
 #include <stdio.h>
 
-#include <algorithm/box3.h>
-#include <algorithm/grid_closest.h>
 
 namespace tessellation
 {
@@ -48,7 +46,7 @@ namespace tessellation
     */
 
     template <class SCALARTYPE>
-    class BasicGrid //:public SpatialIndex<SCALARTYPE>
+    class BasicGrid
     {
     public:
 
@@ -63,27 +61,6 @@ namespace tessellation
         Point3i siz;		/// Number of cells forming the grid
         CoordType voxel;	/// Dimensions of a single cell
 
-                            /*
-                            Derives the right values of Dim and voxel starting
-                            from the current values of siz and bbox
-                            */
-        void ComputeDimAndVoxel()
-        {
-            this->dim = this->bbox.max - this->bbox.min;
-            this->voxel[0] = this->dim[0] / this->siz[0];
-            this->voxel[1] = this->dim[1] / this->siz[1];
-            this->voxel[2] = this->dim[2] / this->siz[2];
-        }
-        /* Given a 3D point, returns the coordinates of the cell where the point is
-        * @param p is a 3D point
-        * @return integer coordinates of the cell
-        */
-        inline Point3i GridP(const Point3<ScalarType> & p) const
-        {
-            Point3i pi;
-            PToIP(p, pi);
-            return pi;
-        }
 
         /* Given a 3D point p, returns the index of the corresponding cell
         * @param p is a 3D point in the space
@@ -95,53 +72,6 @@ namespace tessellation
             pi[0] = int(t[0] / voxel[0]);
             pi[1] = int(t[1] / voxel[1]);
             pi[2] = int(t[2] / voxel[2]);
-        }
-
-        /* Given a cell index return the lower corner of the cell
-        * @param integer coordinates pi of the cell
-        * @return p is a 3D point representing the lower corner of the cell
-        */
-        template <class OtherScalarType>
-        inline void IPiToPf(const Point3i & pi, Point3<OtherScalarType> &p) const
-        {
-            p[0] = bbox.min[0] + ((OtherScalarType)pi[0])*voxel[0];
-            p[1] = bbox.min[1] + ((OtherScalarType)pi[1])*voxel[1];
-            p[2] = bbox.min[2] + ((OtherScalarType)pi[2])*voxel[2];
-        }
-
-        /* Given a cell index return the corresponding box
-        * @param integer coordinates pi of the cell
-        * @return b is the corresponding box in <ScalarType> coordinates
-        */
-        inline void IPiToBox(const Point3i & pi, Box3x & b) const
-        {
-            CoordType p;
-            p[0] = ((ScalarType)pi[0])*voxel[0];
-            p[1] = ((ScalarType)pi[1])*voxel[1];
-            p[2] = ((ScalarType)pi[2])*voxel[2];
-            p += bbox.min;
-            b.min = p;
-            b.max = (p + voxel);
-        }
-
-        /* Given a cell index return the center of the cell itself
-        * @param integer coordinates pi of the cell
-        * @return b is the corresponding box in <ScalarType> coordinates
-        */inline void IPiToBoxCenter(const Point3i & pi, CoordType & c) const
-        {
-            CoordType p;
-            IPiToPf(pi, p);
-            c = p + voxel / ScalarType(2.0);
-        }
-
-        // Same of IPiToPf but for the case that you just want to transform
-        // from a space to the other.
-        template <class OtherScalarType>
-        void IPfToPf(const Point3<OtherScalarType> & pi, Point3<OtherScalarType> &p) const
-        {
-            p[0] = ((OtherScalarType)pi[0])*voxel[0] + bbox.min[0];
-            p[1] = ((OtherScalarType)pi[1])*voxel[1] + bbox.min[1];
-            p[2] = ((OtherScalarType)pi[2])*voxel[2] + bbox.min[2];
         }
 
         /* Given a cell in <ScalarType> coordinates, compute the corresponding cell in integer coordinates
@@ -156,13 +86,7 @@ namespace tessellation
         }
     };
 
-    template<class scalar_type>
-    void BestDim(const Box3<scalar_type> box, const scalar_type voxel_size, Point3i & dim)
-    {
-        Point3<scalar_type> box_size = box.max - box.min;
-        __int64 elem_num = (__int64)(box_size[0] / voxel_size + 0.5) *(__int64)(box_size[1] / voxel_size + 0.5) * (__int64)(box_size[2] / voxel_size + 0.5);
-        BestDim(elem_num, box_size, dim);
-    }
+
     /** Calcolo dimensioni griglia.
     Calcola la dimensione della griglia in funzione
     della ratio del bounding box e del numero di elementi
@@ -264,190 +188,7 @@ namespace tessellation
         typedef Point3<ScalarType> CoordType;
         typedef Box3<ScalarType> BoxType;
 
-        /**************************************************************************
-        Method Set.
-
-        Description:
-        The Set method initializes the spatial structure.
-
-        Template Parameters:
-        OBJITER:  Objects Container's iterator type.
-
-        Method Parameters:
-        _oBegin : [IN] begin objects container's iterator
-        _oEnd   : [IN] end objects container's iterator
-
-        Return Value:
-        None.
-
-        **************************************************************************/
-        template <class OBJITER>
-        void Set(const OBJITER & _oBegin, const OBJITER & _oEnd) {
-            assert(0);      // this is a base interface.
-            (void)_oBegin;  // avoid "unreferenced parameter" compiler warning.
-            (void)_oEnd;
-        }
-
-        /**************************************************************************
-        Method Empty.
-        Description:
-        check if the spatial structure is empty.
-
-        Return Value:
-        true if it is empty.
-        **************************************************************************/
-
-        bool Empty() {
-            assert(0);      // this is a base interface.
-            return true;
-        }
-
-        /**************************************************************************
-        Method GetClosest.
-
-        Description:
-        The GetClosest method finds the closest object given a point.
-        It also finds the closest point and minimum distance.
-
-        Template Parameters:
-        OBJPOINTDISTFUNCTOR : Object-Point distance functor type;
-        this type must implement an operator () with signature
-        bool operator () (const ObjType & obj, const CoordType & p, ScalarType & d, CoordType & q)
-        where:
-        obj [IN] is a reference to the current object being tested,
-        p [IN] is the query point,
-        d [IN/OUT] is in input the reject distance and in output the closest distance,
-        q [OUT] is the closest point.
-        The operator returns true if the closest distance is less than input reject distance.
-        OBJMARKER           : The type of a marker functor.
-
-        Method Parameters:
-        _getPointDistance : [IN] Functor for point-distance calculation.
-        _marker           : [IN] Functor for marking objects already tested.
-        _p                : [IN] The query point.
-        _maxDist          : [IN] Maximum reject distance.
-        _minDist          : [OUT] Closest distance.
-        _closestPt        : [OUT] Closest point.
-
-        Return Value:
-        A pointer to the closest object (if any).
-
-        **************************************************************************/
-        template <class OBJPOINTDISTFUNCTOR, class OBJMARKER>
-        ObjPtr GetClosest(
-            OBJPOINTDISTFUNCTOR & _getPointDistance, OBJMARKER & _marker, const CoordType & _p, const ScalarType & _maxDist,
-            ScalarType & _minDist, CoordType & _closestPt) {
-            assert(0);
-            (void)_getPointDistance;
-            (void)_marker;
-            (void)_p;
-            (void)_maxDist;
-            (void)_minDist;
-            (void)_closestPt;
-            return ((ObjPtr)0);
-        }
-
-        /**************************************************************************
-        Method GetKClosest.
-
-        Description:
-        The GetKClosest method finds the K closest object given a point.
-        It also finds the closest points and minimum distances.
-
-        Template Parameters:
-        OBJPOINTDISTFUNCTOR : Object-Point distance functor type;
-        this type must implement an operator () with signature
-        bool operator () (const ObjType & obj, const CoordType & p, ScalarType & d, CoordType & q)
-        where:
-        obj [IN] is a reference to the current object being tested,
-        p [IN] is the query point,
-        d [IN/OUT] is in input the reject distance and in output the closest distance,
-        q [OUT] is the closest point.
-        The operator returns true if the closest distance is less than input reject distance.
-        OBJMARKER           : The type of a marker functor.
-        OBJPTRCONTAINER     : The type of a object pointers container.
-        DISTCONTAINER       : The type of a container which, in return, will contain the closest distances.
-        POINTCONTAINER      : The type of a container which, in return, will contain the closest points.
-
-        Method Parameters:
-        _getPointDistance : [IN] Functor for point-distance calculation.
-        _marker           : [IN] Functor for marking objects already tested.
-        _k                : [IN] The number of closest objects to search for.
-        _p                : [IN] The query point.
-        _maxDist          : [IN] Maximum reject distance.
-        _objectPtrs       : [OUT] Container which, in return, will contain pointers to the closest objects.
-        _distances        : [OUT] Container which, in return, will contain the closest distances.
-        _objectPtrs       : [OUT] Container which, in return, will contain the closest points.
-
-        Return Value:
-        The number of closest objects found.
-
-        **************************************************************************/
-        template <class OBJPOINTDISTFUNCTOR, class OBJMARKER, class OBJPTRCONTAINER, class DISTCONTAINER, class POINTCONTAINER>
-        unsigned int GetKClosest(
-            OBJPOINTDISTFUNCTOR & _getPointDistance, OBJMARKER & _marker, const unsigned int _k, const CoordType & _p, const ScalarType & _maxDist,
-            OBJPTRCONTAINER & _objectPtrs, DISTCONTAINER & _distances, POINTCONTAINER & _points) {
-            assert(0);
-            (void)_getPointDistance;
-            (void)_marker;
-            (void)_k;
-            (void)_p;
-            (void)_maxDist;
-            (void)_objectPtrs;
-            (void)_distances;
-            (void)_points;
-            return (0);
-        }
-
-
-        /**************************************************************************
-        Method GetInSphere.
-
-        Description:
-        The GetInSphere method finds all the objects in the specified sphere
-
-        Template Parameters:
-        OBJPOINTDISTFUNCTOR : Object-Point distance functor type;
-        this type must implement an operator () with signature
-        bool operator () (const ObjType & obj, const CoordType & p, ScalarType & d, CoordType & q)
-        where:
-        obj [IN] is a reference to the current object being tested,
-        p [IN] is the query point,
-        d [IN/OUT] is in input the reject distance and in output the closest distance,
-        q [OUT] is the closest point.
-        The operator returns true if the closest distance is less than input reject distance.
-        OBJMARKER           : The type of a marker functor.
-        OBJPTRCONTAINER     : The type of a object pointers container.
-        DISTCONTAINER       : The type of a container which, in return, will contain the closest distances.
-        POINTCONTAINER      : The type of a container which, in return, will contain the closest points.
-
-        Method Parameters:
-        _getPointDistance : [IN] Functor for point-distance calculation.
-        _marker           : [IN] Functor for marking objects already tested.
-        _p                : [IN] The query point.
-        _r		          : [IN]  The radius of the specified sphere.
-        _objectPtrs       : [OUT] Container which, in return, will contain pointers to the in-sphere objects.
-        _distances        : [OUT] Container which, in return, will contain the in-sphere distances.
-        _objectPtrs       : [OUT] Container which, in return, will contain the in-sphere nearests points for each object.
-
-        Return Value:
-        The number of in-sphere objects found.
-
-        **************************************************************************/
-        template <class OBJPOINTDISTFUNCTOR, class OBJMARKER, class OBJPTRCONTAINER, class DISTCONTAINER, class POINTCONTAINER>
-        unsigned int GetInSphere(
-            OBJPOINTDISTFUNCTOR & _getPointDistance, OBJMARKER & _marker, const CoordType & _p, const ScalarType & _r, OBJPTRCONTAINER & _objectPtrs, DISTCONTAINER & _distances, POINTCONTAINER & _points) {
-            assert(0);
-            (void)_getPointDistance;
-            (void)_marker;
-            (void)_p;
-            (void)_r;
-            (void)_objectPtrs;
-            (void)_distances;
-            (void)_points;
-            return (0);
-        }
-
+        
         /**************************************************************************
         Method GetInBox.
 
@@ -573,52 +314,9 @@ namespace tessellation
 
         std::vector<Cell> grid;   /// Griglia vera e propria
 
-
-
+        
         bool Empty() const { return links.empty(); }
 
-        /// Date le coordinate di un grid point (corner minx,miy,minz) ritorna le celle che condividono
-        /// l'edge cell che parte dal grid point in direzione axis
-        inline void Grid(Point3i p, const int axis,
-            std::vector<Cell*> & cl)
-        {
-#ifndef NDEBUG
-            if (p[0]<0 || p[0] > BT::siz[0] ||
-                p[1]<0 || p[1]> BT::siz[1] ||
-                p[2]<0 || p[2]> BT::siz[2])
-                assert(0);
-            //return NULL;
-            else
-#endif
-                assert(((unsigned int)p[0] + BT::siz[0] * p[1] + BT::siz[1] * p[2]) < grid.size());
-
-            int axis0 = (axis + 1) % 3;
-            int axis1 = (axis + 2) % 3;
-            int i, j, x, y;
-            x = p[axis0];
-            y = p[axis1];
-            for (i = std::max(x - 1, 0); i <= std::min(x, BT::siz[axis0] - 1); ++i)
-                for (j = std::max(y - 1, 0); j <= std::min(y, this->siz[axis1] - 1); ++j) {
-                    p[axis0] = i;
-                    p[axis1] = j;
-                    cl.push_back(Grid(p[0] + BT::siz[0] * (p[1] + BT::siz[1] * p[2])));
-                }
-        }
-
-
-        //////////////// 
-        // Official access functions
-        //////////////// 
-        /// BY CELL
-        Cell* Grid(const  int i) {
-            return &grid[i];
-        }
-
-        void Grid(const Cell* g, Cell & first, Cell & last)
-        {
-            first = *g;
-            last = *(g + 1);
-        }
 
         /// BY INTEGER COORDS
         inline Cell* Grid(const int x, const int y, const int z)
@@ -628,11 +326,6 @@ namespace tessellation
             return &*grid.begin() + (x + BT::siz[0] * (y + BT::siz[1] * z));
         }
 
-        inline Cell* Grid(const Point3i &pi)
-        {
-            return Grid(pi[0], pi[1], pi[2]);
-        }
-
         void Grid(const int x, const int y, const int z, Cell & first, Cell & last)
         {
             Cell* g = Grid(x, y, z);
@@ -640,49 +333,6 @@ namespace tessellation
             last = *(g + 1);
         }
 
-        void Grid(const Point3<ScalarType> & p, Cell & first, Cell & last)
-        {
-            Cell* g = Grid(GridP(p));
-
-            first = *g;
-            last = *(g + 1);
-        }
-
-
-        /// Set the bounding box of the grid
-        ///We need some extra space for numerical precision.
-        template <class Box3Type>
-        void SetBBox(const Box3Type & b)
-        {
-            this->bbox.Import(b);
-            ScalarType t = this->bbox.Diag() / 100.0;
-            if (t == 0) t = ScalarType(1e-20);  // <--- Some doubts on this (Cigno 5/1/04)
-            this->bbox.Offset(t);
-            this->dim = this->bbox.max - this->bbox.min;
-        }
-
-
-
-        //		void ShowStats(FILE *fp)
-        //		{
-        //			// Conto le entry
-        //			//int nentry = 0;
-        //			//Hist H;
-        //			//H.SetRange(0,1000,1000);
-        //			//int pg;
-        //			//for(pg=0;pg<grid.size()-1;++pg)
-        //			//	if( grid[pg]!=grid[pg+1] )
-        //			//	{
-        //			//		++nentry;
-        //			//		H.Add(grid[pg+1]-grid[pg]);
-        //			//	}
-
-        //			//	fprintf(fp,"Uniform Grid: %d x %d x %d (%d voxels), %.1f%% full, %d links \nNon empty Cell Occupancy Distribution Avg: %f (%4.0f %4.0f %4.0f) \n",
-        //			//	siz[0],siz[1],siz[2],grid.size()-1,
-        //			//	double(nentry)*100.0/(grid.size()-1),links.size(),H.Avg(),H.Percentile(.25),H.Percentile(.5),H.Percentile(.75)
-        //			//
-        //			//);
-        //		}
 
         template <class OBJITER>
         inline void Set(const OBJITER & _oBegin, const OBJITER & _oEnd, int _size = 0)
@@ -705,36 +355,6 @@ namespace tessellation
             Set(_oBegin, _oEnd, _bbox, _size);
         }
 
-
-
-        // This function automatically compute a reasonable size for the uniform grid providing the side (radius) of the cell
-        //
-        // Note that the bbox must be already 'inflated' so to be sure that no object will fall on the border of the grid.
-
-        template <class OBJITER>
-        inline void SetWithRadius(const OBJITER & _oBegin, const OBJITER & _oEnd, FLT _cellRadius)
-        {
-            Box3<FLT> _bbox;
-            Box3<FLT> b;
-            for (OBJITER i = _oBegin; i != _oEnd; ++i)
-            {
-                (*i).GetBBox(b);
-                _bbox.Add(b);
-            }
-
-            _bbox.min -= vcg::Point3<FLT>(_cellRadius, _cellRadius, _cellRadius);
-            _bbox.max += vcg::Point3<FLT>(_cellRadius, _cellRadius, _cellRadius);
-
-            Point3i _siz;
-            Point3<FLT> _dim = _bbox.max - _bbox.min;
-            _dim /= _cellRadius;
-            assert(_dim[0] > 0 && _dim[1] > 0 && _dim[2] > 0);
-            _siz[0] = (int)ceil(_dim[0]);
-            _siz[1] = (int)ceil(_dim[1]);
-            _siz[2] = (int)ceil(_dim[2]);
-
-            Set(_oBegin, _oEnd, _bbox, _siz);
-        }
 
 
         // This function automatically compute a reasonable size for the uniform grid such that the number of cells is
@@ -819,21 +439,14 @@ namespace tessellation
             {
                 assert(pl != links.end());
                 grid[pg] = &*pl;
-                while ((int)pg == pl->Index())	// Trovato inizio
+                while ((int)pg == pl->Index())
                 {
-                    ++pl;		// Ricerca prossimo blocco
+                    ++pl;
                     if (pl == links.end())
                         break;
                 }
             }
 
-        }
-
-
-        int MemUsed()
-        {
-            return sizeof(GridStaticPtr) + sizeof(Link)*links.size() +
-                sizeof(Cell) * grid.size();
         }
 
         template <class OBJPOINTDISTFUNCTOR, class OBJMARKER>
@@ -843,79 +456,99 @@ namespace tessellation
             return (tessellation::GridClosest<GridPtrType, OBJPOINTDISTFUNCTOR, OBJMARKER>(*this, _getPointDistance, _marker, _p, _maxDist, _minDist, _closestPt));
         }
 
+    }; //end class GridStaticPtr
 
-        template <class OBJPOINTDISTFUNCTOR, class OBJMARKER, class OBJPTRCONTAINER, class DISTCONTAINER, class POINTCONTAINER>
-        unsigned int GetKClosest(OBJPOINTDISTFUNCTOR & _getPointDistance, OBJMARKER & _marker,
-            const unsigned int _k, const CoordType & _p, const ScalarType & _maxDist, OBJPTRCONTAINER & _objectPtrs,
-            DISTCONTAINER & _distances, POINTCONTAINER & _points)
+
+    template <class SPATIAL_INDEX, class OBJPOINTDISTFUNCTOR, class OBJMARKER>
+    typename SPATIAL_INDEX::ObjPtr  GridClosest(SPATIAL_INDEX &Si,
+        OBJPOINTDISTFUNCTOR _getPointDistance,
+        OBJMARKER & _marker,
+        const typename OBJPOINTDISTFUNCTOR::QueryType  & _p_obj,
+        const typename SPATIAL_INDEX::ScalarType & _maxDist,
+        typename SPATIAL_INDEX::ScalarType & _minDist,
+        typename SPATIAL_INDEX::CoordType &_closestPt)
+    {
+        typedef typename SPATIAL_INDEX::ObjPtr ObjPtr;
+        typedef typename SPATIAL_INDEX::CoordType CoordType;
+        typedef typename SPATIAL_INDEX::ScalarType ScalarType;
+        typedef typename SPATIAL_INDEX::Box3x Box3x;
+
+        Point3<ScalarType> _p = OBJPOINTDISTFUNCTOR::Pos(_p_obj);
+        // Initialize min_dist with _maxDist to exploit early rejection test.
+        _minDist = _maxDist;
+
+        ObjPtr winner = NULL;
+        _marker.UnMarkAll();
+        ScalarType newradius = Si.voxel.Norm();
+        ScalarType radius;
+        Box3i iboxdone, iboxtodo;
+        CoordType t_res;
+        typename SPATIAL_INDEX::CellIterator first, last, l;
+        if (Si.bbox.IsInEx(_p))
         {
-            return (vcg::GridGetKClosest<GridPtrType,
-                OBJPOINTDISTFUNCTOR, OBJMARKER, OBJPTRCONTAINER, DISTCONTAINER, POINTCONTAINER>(*this, _getPointDistance, _marker, _k, _p, _maxDist, _objectPtrs, _distances, _points));
-        }
-        
-        /* If the grid has a cubic voxel of side <radius> this function
-         process all couple of elementes in neighbouring cells.
-             GATHERFUNCTOR needs to expose this method:
-           bool operator()(OBJTYPE *v1, OBJTYPE *v2);
-           which is then called ONCE per unordered pair v1,v2.
-         example:
-
-         struct GFunctor {
-           double radius2, iradius2;
-           GFunctor(double radius) { radius2 = radius*radius; iradius2 = 1/radius2; }
-
-           bool operator()(CVertex *v1, CVertex *v2) {
-             Point3d &p = v1->P();
-             Point3d &q = v2->P();
-             double dist2 = (p-q).SquaredNorm();
-             if(dist2 < radius2) {
-               double w = exp(dist2*iradius2);
-               //do something
-             }
-           }
-        }; */
-
-        template <class GATHERFUNCTOR>
-        void Gather(GATHERFUNCTOR gfunctor) {
-            static int corner[8 * 3] = { 0, 0, 0,  1, 0, 0,  0, 1, 0,  0, 0, 1,
-                                       0, 1, 1,  1, 0, 1,  1, 1, 0,  1, 1, 1 };
-
-            static int diagonals[14 * 2] = { 0, 0,
-                                           0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7,
-                                           2, 3, 1, 3, 1, 2,
-                                           1, 4, 2, 5, 3, 6 };
-
-            Cell ostart, oend, dstart, dend;
-            for (int z = 0; z < this->siz[2]; z++) {
-                for (int y = 0; y < this->siz[1]; y++) {
-                    for (int x = 0; x < this->siz[0]; x++) {
-
-                        Grid(x, y, z, ostart, oend);
-
-                        for (Cell c = ostart; c != oend; c++)
-                            for (Cell s = c + 1; s != oend; s++)
-                                gfunctor(c->Elem(), s->Elem());
-
-                        for (int d = 2; d < 28; d += 2) { //skipping self
-                            int *cs = corner + 3 * diagonals[d];
-                            int *ce = corner + 3 * diagonals[d + 1];
-                            if ((x + cs[0] < this->siz[0]) && (y + cs[1] < this->siz[1]) && (z + cs[2] < this->siz[2]) &&
-                                (x + ce[0] < this->siz[0]) && (y + ce[1] < this->siz[1]) && (z + ce[2] < this->siz[2])) {
-
-                                Grid(x + cs[0], y + cs[1], z + cs[2], ostart, oend);
-                                Grid(x + ce[0], y + ce[1], z + ce[2], dstart, dend);
-
-                                for (Cell c = ostart; c != oend; c++)
-                                    for (Cell s = dstart; s != dend; s++)
-                                        gfunctor(c->Elem(), s->Elem());
-                            }
-                        }
+            Point3i _ip;
+            Si.PToIP(_p, _ip);
+            Si.Grid(_ip[0], _ip[1], _ip[2], first, last);
+            for (l = first; l != last; ++l)
+            {
+                ObjPtr elem = &(**l);
+                if (!elem->IsD())
+                {
+                    if (_getPointDistance((**l), _p_obj, _minDist, t_res))  // <-- NEW: use of distance functor
+                    {
+                        winner = elem;
+                        _closestPt = t_res;
+                        newradius = _minDist; //
                     }
+                    _marker.Mark(elem);
                 }
             }
+            iboxdone = Box3i(_ip, _ip);
         }
 
+        int ix, iy, iz;
+        Box3i ibox(Point3i(0, 0, 0), Si.siz - Point3i(1, 1, 1));
+        do
+        {
+            radius = newradius;
+            Box3x boxtodo = Box3x(_p, radius);
+            //boxtodo.Intersect(Si.bbox);
+            Si.BoxToIBox(boxtodo, iboxtodo);
+            iboxtodo.Intersect(ibox);
+            if (!boxtodo.IsNull())
+            {
+                for (ix = iboxtodo.min[0]; ix <= iboxtodo.max[0]; ix++)
+                    for (iy = iboxtodo.min[1]; iy <= iboxtodo.max[1]; iy++)
+                        for (iz = iboxtodo.min[2]; iz <= iboxtodo.max[2]; iz++)
+                            if (ix<iboxdone.min[0] || ix>iboxdone.max[0] ||  // this test is to avoid to re-process already analyzed cells.
+                                iy<iboxdone.min[1] || iy>iboxdone.max[1] ||
+                                iz<iboxdone.min[2] || iz>iboxdone.max[2])
+                            {
+                                Si.Grid(ix, iy, iz, first, last);
+                                for (l = first; l != last; ++l) if (!(**l).IsD())
+                                {
+                                    ObjPtr elem = &(**l);
+                                    if (!elem->IsD())
+                                    {
+                                        if (!_marker.IsMarked(elem))
+                                        {
+                                            if (_getPointDistance((**l), _p_obj, _minDist, t_res))
+                                            {
+                                                winner = elem;
+                                                _closestPt = t_res;
+                                            };
+                                            _marker.Mark(elem);
+                                        }
+                                    }
+                                }
+                            }
+            }
+            if (!winner) newradius = radius + Si.voxel.Norm();
+            else newradius = _minDist;
+            iboxdone = iboxtodo;
+        } while (_minDist > radius);
 
-    }; //end class GridStaticPtr
+        return winner;
+    }
 
 } // end namespace

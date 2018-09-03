@@ -13,7 +13,6 @@
 #include <set>
 #include <algorithm/space_base.h>
 #include <algorithm/simplex_base.h>
-#include <algorithm/box3.h>
 
 namespace tessellation
 {
@@ -426,22 +425,15 @@ namespace tessellation
                 PerVertexAttributeHandle(): AttributeHandle<ATTR_TYPE, VertContainer>() {}
                 PerVertexAttributeHandle( void *ah, const int &n): AttributeHandle<ATTR_TYPE, VertContainer>(ah, n) {}
             };
-            
-            template <class ATTR_TYPE>
-            class PerFaceAttributeHandle: public AttributeHandle<ATTR_TYPE, FaceContainer>
-            {
-            public:
-                PerFaceAttributeHandle(): AttributeHandle<ATTR_TYPE, FaceContainer>() {}
-                PerFaceAttributeHandle( void *ah, const int &n): AttributeHandle<ATTR_TYPE, FaceContainer>(ah, n) {}
-            };
 
             template <class ATTR_TYPE>
-            class PerEdgeAttributeHandle:  public AttributeHandle<ATTR_TYPE, EdgeContainer>
+            class PerFaceAttributeHandle : public AttributeHandle<ATTR_TYPE, FaceContainer>
             {
             public:
-                PerEdgeAttributeHandle(): AttributeHandle<ATTR_TYPE, EdgeContainer>() {}
-                PerEdgeAttributeHandle( void *ah, const int &n): AttributeHandle<ATTR_TYPE, EdgeContainer>(ah, n) {}
+                PerFaceAttributeHandle() : AttributeHandle<ATTR_TYPE, FaceContainer>() {}
+                PerFaceAttributeHandle(void *ah, const int &n) : AttributeHandle<ATTR_TYPE, FaceContainer>(ah, n) {}
             };
+
 
             template <class ATTR_TYPE>
             class PerMeshAttributeHandle
@@ -619,32 +611,6 @@ namespace tessellation
         }
 
 
-        template < class FaceType>    bool FaceVectorHasPerWedgeColor(const std::vector<FaceType> &)
-        {
-            return FaceType::HasWedgeColor();
-        }
-        template < class FaceType>    bool FaceVectorHasPerWedgeNormal(const std::vector<FaceType> &)
-        {
-            return FaceType::HasWedgeNormal();
-        }
-        template < class FaceType>    bool FaceVectorHasPerWedgeTexCoord(const std::vector<FaceType> &)
-        {
-            return FaceType::HasWedgeTexCoord();
-        }
-
-        template < class TriMeshType> bool HasPerWedgeColor(const TriMeshType &m)
-        {
-            return tri::FaceVectorHasPerWedgeColor(m.face);
-        }
-        template < class TriMeshType> bool HasPerWedgeNormal(const TriMeshType &m)
-        {
-            return tri::FaceVectorHasPerWedgeNormal(m.face);
-        }
-        template < class TriMeshType> bool HasPerWedgeTexCoord(const TriMeshType &m)
-        {
-            return tri::FaceVectorHasPerWedgeTexCoord(m.face);
-        }
-
         template < class FaceType>    bool FaceVectorHasPerFaceFlags  (const std::vector<FaceType> &)
         {
             return FaceType::HasFlags  ();
@@ -800,25 +766,7 @@ namespace tessellation
         { 
             if (!tri::HasPerVertexNormal(m)) throw tessellation::MissingComponentException("PerVertexNormal      ");
         }
-
-        template <class MeshType> void RequirePerFaceColor(MeshType &m)
-        {
-            if (!tri::HasPerFaceColor(m)) throw tessellation::MissingComponentException("PerFaceColor       ");
-        }
-
-        template <class MeshType> void RequirePerFaceWedgeColor(MeshType &m)
-        {
-            if (!tri::HasPerWedgeColor(m)) throw tessellation::MissingComponentException("PerFaceWedgeColor   ");
-        }
-        template <class MeshType> void RequirePerFaceWedgeNormal(MeshType &m)
-        {
-            if (!tri::HasPerWedgeNormal(m)) throw tessellation::MissingComponentException("PerFaceWedgeNormal  ");
-        }
-        template <class MeshType> void RequirePerFaceWedgeTexCoord(MeshType &m)
-        {
-            if (!tri::HasPerWedgeTexCoord(m)) throw tessellation::MissingComponentException("PerFaceWedgeTexCoord");
-        }
-
+        
         template <class MeshType> void RequirePerFaceMark(MeshType &m) { if (!tri::HasPerFaceMark(m)) throw tessellation::MissingComponentException("PerFaceMark        "); }
 
 
@@ -1566,68 +1514,6 @@ namespace tessellation
             }
         }; // end class
 
-
-           /********************** Interpolation **********************/
-
-           // The function to computing barycentric coords of a point inside a triangle.
-           // it requires the knowledge of what is the direction that is more orthogonal to the face plane.
-           //  ScalarType nx = math::Abs((*fi).cN()[0]);
-           //  ScalarType ny = math::Abs((*fi).cN()[1]);
-           //  ScalarType nz = math::Abs((*fi).cN()[2]);
-           //  if(nx>ny && nx>nz) { axis = 0; }
-           //  else if(ny>nz)     { axis = 1 }
-           //  else               { axis = 2 }
-           //  InterpolationParameters(*fp,axis,Point,L);
-           //
-           // This normal direction is used to project the triangle in 2D and solve the problem in 2D where it is simpler and often well defined.
-
-        template<class TriangleType, class ScalarType>
-        static bool InterpolationParameters(const TriangleType t, const int Axis, const Point3<ScalarType> & P, Point3<ScalarType> & L)
-        {
-            typedef Point2<ScalarType> P2;
-            if (Axis == 0) return InterpolationParameters2(P2(t.cP(0)[1], t.cP(0)[2]), P2(t.cP(1)[1], t.cP(1)[2]), P2(t.cP(2)[1], t.cP(2)[2]), P2(P[1], P[2]), L);
-            if (Axis == 1) return InterpolationParameters2(P2(t.cP(0)[0], t.cP(0)[2]), P2(t.cP(1)[0], t.cP(1)[2]), P2(t.cP(2)[0], t.cP(2)[2]), P2(P[0], P[2]), L);
-            if (Axis == 2) return InterpolationParameters2(P2(t.cP(0)[0], t.cP(0)[1]), P2(t.cP(1)[0], t.cP(1)[1]), P2(t.cP(2)[0], t.cP(2)[1]), P2(P[0], P[1]), L);
-            return false;
-        }
-        /// Handy Wrapper of the above one that uses the passed normal N to choose the right orientation
-        template<class TriangleType, class ScalarType>
-        static bool InterpolationParameters(const TriangleType t, const Point3<ScalarType> & N, const Point3<ScalarType> & P, Point3<ScalarType> & L)
-        {
-            if (fabs(N[0]) > fabs(N[1]))
-            {
-                if (fabs(N[0]) > fabs(N[2]))
-                    return InterpolationParameters(t, 0, P, L); /* 0 > 1 ? 2 */
-                else
-                    return InterpolationParameters(t, 2, P, L); /* 2 > 1 ? 2 */
-            }
-            else
-            {
-                if (fabs(N[1]) > fabs(N[2]))
-                    return InterpolationParameters(t, 1, P, L); /* 1 > 0 ? 2 */
-                else
-                    return InterpolationParameters(t, 2, P, L); /* 2 > 1 ? 2 */
-            }
-        }
-
-        // Function that computes the barycentric coords of a 2D triangle.
-        template<class ScalarType>
-        static bool InterpolationParameters2(const Point2<ScalarType> &V1,
-            const Point2<ScalarType> &V2,
-            const Point2<ScalarType> &V3,
-            const Point2<ScalarType> &P, Point3<ScalarType> &L)
-        {
-            tessellation::Triangle2<ScalarType> t2 = tessellation::Triangle2<ScalarType>(V1, V2, V3);
-            return (t2.InterpolationParameters(P, L.X(), L.Y(), L.Z()));
-        }
-
-        /// Handy Wrapper of the above one that calculate the normal on the triangle
-        template<class TriangleType, class ScalarType>
-        static bool InterpolationParameters(const TriangleType t, const Point3<ScalarType> & P, Point3<ScalarType> & L)
-        {
-            vcg::Point3<ScalarType> N = tessellation::TriangleNormal<TriangleType>(t);
-            return (InterpolationParameters<TriangleType, ScalarType>(t, N, P, L));
-        }
 
         /** \brief Set the face incremental mark of the vertex to the one of the mesh.
         @param m the mesh containing the element

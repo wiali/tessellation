@@ -6,8 +6,6 @@
 #include "meshio.hpp"
 #include <algorithm/refine_loop.h>
 #include <algorithm/grid_static_ptr.h>
-#include <algorithm/closest.h>
-#include <algorithm/box3.h>
 #include <QImage>
 
 using namespace tessellation;
@@ -15,44 +13,10 @@ using namespace tessellation;
 enum MeshElement
 {
     MM_NONE = 0x00000000,
-    MM_VERTCOORD = 0x00000001,
-    MM_VERTNORMAL = 0x00000002,
-    MM_VERTFLAG = 0x00000004,
-    MM_VERTCOLOR = 0x00000008,
-    MM_VERTQUALITY = 0x00000010,
-    MM_VERTMARK = 0x00000020,
     MM_VERTFACETOPO = 0x00000040,
-    MM_VERTCURV = 0x00000080,
-    MM_VERTCURVDIR = 0x00000100,
-    MM_VERTRADIUS = 0x00000200,
     MM_VERTTEXCOORD = 0x00000400,
-    MM_VERTNUMBER = 0x00000800,
-
-    MM_FACEVERT = 0x00001000,
-    MM_FACENORMAL = 0x00002000,
-    MM_FACEFLAG = 0x00004000,
-    MM_FACECOLOR = 0x00008000,
-    MM_FACEQUALITY = 0x00010000,
     MM_FACEMARK = 0x00020000,
     MM_FACEFACETOPO = 0x00040000,
-    MM_FACENUMBER = 0x00080000,
-    MM_FACECURVDIR = 0x00100000,
-
-    MM_WEDGTEXCOORD = 0x00200000,
-    MM_WEDGNORMAL = 0x00400000,
-    MM_WEDGCOLOR = 0x00800000,
-
-    // 	Selection
-    MM_VERTFLAGSELECT = 0x01000000,
-    MM_FACEFLAGSELECT = 0x02000000,
-
-    // Per Mesh Stuff....
-    MM_CAMERA = 0x08000000,
-    MM_TRANSFMATRIX = 0x10000000,
-    MM_COLOR = 0x20000000,
-    MM_POLYGONAL = 0x40000000,
-    MM_UNKNOWN = 0x80000000,
-
     MM_ALL = 0xffffffff
 };
 
@@ -70,8 +34,6 @@ void updateDataMask(CMeshO& mesh, int neededDataMask)
         tri::UpdateTopology<CMeshO>::VertexFace(mesh);
     }
 
-    if ((neededDataMask & MM_FACECOLOR) != 0)
-        mesh.face.EnableColor();
     if ((neededDataMask & MM_FACEMARK) != 0)
         mesh.face.EnableMark();
     if ((neededDataMask & MM_VERTTEXCOORD) != 0)
@@ -138,6 +100,17 @@ public:
     }
 };
 
+/** evaluate barycentric coordinates
+@param bq Point on the face
+@param L0 barycentric value for V(0)
+@param L1 barycentric value for V(1)
+@param L2 barycentric value for V(2)
+@return true se bq appartain to the face, false otherwise
+from http://en.wikipedia.org/wiki/Barycentric_coordinate_system_(mathematics)
+L1=((y2-y3)(x-x3)+(x3-x2)(y-y3))/((y2-y3)(x1-x3)+(x3-x2)(y1-y3))
+L2=((y3-y1)(x-x3)+(x1-x3)(y-y3))/((y3-y1)(x2-x3)+(x1-x3)(y2-y3))
+L3=1-L1-L2
+*/
 Point3f Barycentric(Point3f aV1, Point3f aV2, Point3f aV3, Point3f aP)
 {
     Point3f a = aV2 - aV3, b = aV1 - aV3, c = aP - aV3;
@@ -175,7 +148,6 @@ void updateUVs(CMeshO& mesh, CMeshO& mesh_old)
             auto pFace = pGetClosestFace->getFace(i->P());
             Point3f fBarycentric;
             fBarycentric = Barycentric(pFace->V(0)->P(), pFace->V(1)->P(), pFace->V(2)->P(), i->P());
-            //tri::InterpolationParameters(*pFace, pFace->cN(), i->P(), fBarycentric);
             auto newUV = pFace->V(0)->T().P() * fBarycentric[0] + pFace->V(1)->T().P() * fBarycentric[1] + pFace->V(2)->T().P() * fBarycentric[2];
             i->T().P()[0] = newUV[0];
             i->T().P()[1] = newUV[1];
@@ -244,8 +216,6 @@ static int copyMesh(CMeshO& mesh_src, CMeshO& mesh_dest)
     tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh_dest);
 
     updateDataMask(mesh_dest, MM_VERTTEXCOORD);
-    updateDataMask(mesh_dest, MM_FACECOLOR);
-
     updateDataMask(mesh_dest, MM_VERTFACETOPO);
 
     return 0;
@@ -267,7 +237,6 @@ int main()
     tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh);
 
     updateDataMask(mesh, MM_VERTTEXCOORD);
-    updateDataMask(mesh, MM_FACECOLOR);
 
     int iterations = 1;
     for (int i = 0; i < iterations; ++i)
@@ -300,9 +269,6 @@ int main()
         float displacement = pixelValue;
         i->P() += _normal * displacement * heightMapScale;
     }
-
-    //tri::UpdateTopology<CMeshO>::VertexFace(mesh);
-    //tri::UpdateTopology<CMeshO>::FaceFace(mesh);
 
     UpdateBoxAndNormals(mesh);
 

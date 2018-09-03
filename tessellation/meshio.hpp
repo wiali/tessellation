@@ -1,7 +1,6 @@
 #ifndef MESHLOADING_HPP_
 #define MESHLOADING_HPP_
 
-#include "linalgebra.hpp"
 #include "ml_mesh_type.h"
 #include <iostream>
 #include <sstream>
@@ -9,6 +8,8 @@
 #include <vector>
 #include <fstream>
 #include <tuple>
+#include <QVector3D>
+#include <QVector2D>
 
 using namespace std;
 
@@ -39,7 +40,7 @@ namespace MeshSpace
 
         static int loadMesh(
             std::string,
-            std::vector<Vector3f>&,
+            std::vector<QVector3D>&,
             std::vector<int>&
         )
         {
@@ -59,10 +60,10 @@ namespace MeshSpace
     {
         static int loadMesh(
             std::string path,
-            std::vector<Vector3f>& vertices,
+            std::vector<QVector3D>& vertices,
             std::vector<int>& indices,
-            std::vector<Vector2f>& uvs,
-            std::vector<Vector3f>& normals
+            std::vector<QVector2D>& uvs,
+            std::vector<QVector3D>& normals
         )
         {
             std::ifstream fs;
@@ -72,9 +73,9 @@ namespace MeshSpace
                 std::cout << "Mesh file \"" << path << "\" could not be loaded." << std::endl;
                 return -1;
             }
-            std::vector<Vector3f> single_normals;
+            std::vector<QVector3D> single_normals;
             std::vector<int> normal_indices;
-            std::vector<Vector2f> single_uvs;
+            std::vector<QVector2D> single_uvs;
             std::vector<int> uvs_indices;
 
             while (!fs.eof())
@@ -87,7 +88,7 @@ namespace MeshSpace
                 }
                 if (type == "v")
                 {
-                    Vector3f new_vertex;
+                    QVector3D new_vertex;
                     fs >> new_vertex[0];
                     fs >> new_vertex[1];
                     fs >> new_vertex[2];
@@ -95,7 +96,7 @@ namespace MeshSpace
                 }
                 if (type == "vn")
                 {
-                    Vector3f new_normal;
+                    QVector3D new_normal;
                     fs >> new_normal[0];
                     fs >> new_normal[1];
                     fs >> new_normal[2];
@@ -103,7 +104,7 @@ namespace MeshSpace
                 }
                 if (type == "vt")
                 {
-                    Vector2f new_uv;
+                    QVector2D new_uv;
                     fs >> new_uv[0];
                     fs >> new_uv[1];
                     single_uvs.push_back(new_uv);
@@ -129,10 +130,10 @@ namespace MeshSpace
 
         static int loadMesh(std::string path, CMeshO& mesh)
         {
-            std::vector<Vector3f> raw_vertices;
+            std::vector<QVector3D> raw_vertices;
             std::vector<int> indices;
-            std::vector<Vector2f> uvs;
-            std::vector<Vector3f> normals;
+            std::vector<QVector2D> uvs;
+            std::vector<QVector3D> normals;
 
             if (loadMesh(path, raw_vertices, indices, uvs, normals) < 0)
                 return -1;
@@ -149,7 +150,7 @@ namespace MeshSpace
             CMeshO::VertexPointer *ivp = new CMeshO::VertexPointer[nVertexs];
             for (int i=0; i < nVertexs; ++i)
             {
-                Vector3f pt = raw_vertices[i];
+                QVector3D pt = raw_vertices[i];
                 ivp[i] = &*vi; vi->P() = CMeshO::CoordType(pt[0], pt[1], pt[2]); ++vi;
             }
 

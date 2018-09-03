@@ -815,11 +815,324 @@ namespace tessellation
             }
 
         }; // end class
+
+           //**MARKER CLASSES**//
+        template <class MESH_TYPE, class OBJ_TYPE>
+        class Tmark
+        {
+            MESH_TYPE *m;
+        public:
+            Tmark() {}
+            Tmark(MESH_TYPE *m) { SetMesh(m); }
+            void UnMarkAll() { tessellation::tri::UnMarkAll(*m); }
+            bool IsMarked(OBJ_TYPE* obj) { return (tessellation::tri::IsMarked(*m, obj)); }
+            void Mark(OBJ_TYPE* obj) { tessellation::tri::Mark(*m, obj); }
+            void SetMesh(MESH_TYPE *_m)
+            {
+                tri::RequirePerFaceMark(*_m);
+                m = _m;
+            }
+        };
+
+        template <class MESH_TYPE>
+        class FaceTmark :public Tmark<MESH_TYPE, typename MESH_TYPE::FaceType>
+        {
+        public:
+            FaceTmark() {}
+            FaceTmark(MESH_TYPE *m) { this->SetMesh(m); }
+        };
+
     } // end namespace
 
     template<class TriangleType>
     typename TriangleType::ScalarType DoubleArea(const TriangleType &t)
     {
         return Norm((t.cP(1) - t.cP(0)) ^ (t.cP(2) - t.cP(0)));
+    }
+
+
+    template <class BoxScalarType>
+    class Box3
+    {
+    public:
+
+        /// The scalar type
+        typedef BoxScalarType ScalarType;
+
+        /// min coordinate point
+        Point3<BoxScalarType> min;
+        /// max coordinate point
+        Point3<BoxScalarType> max;
+        /// The bounding box constructor
+        inline  Box3() { min.X() = 1; max.X() = -1; min.Y() = 1; max.Y() = -1; min.Z() = 1; max.Z() = -1; }
+        /// Copy constructor
+        inline  Box3(const Box3 & b) { min = b.min; max = b.max; }
+        /// Min Max constructor
+        inline  Box3(const Point3<BoxScalarType> & mi, const Point3<BoxScalarType> & ma) { min = mi; max = ma; }
+        /// Point Radius Constructor
+        inline Box3(const Point3<BoxScalarType> & center, const BoxScalarType & radius) {
+            min = center - Point3<BoxScalarType>(radius, radius, radius);
+            max = center + Point3<BoxScalarType>(radius, radius, radius);
+        }
+        /// The bounding box distructor
+        inline ~Box3() { }
+
+        /// Initializing the bounding box
+        void Set(const Point3<BoxScalarType> & p)
+        {
+            min = max = p;
+        }
+
+        /// Set the bounding box to a null value
+        void SetNull()
+        {
+            min.X() = 1; max.X() = -1;
+            min.Y() = 1; max.Y() = -1;
+            min.Z() = 1; max.Z() = -1;
+        }
+        /** Modify the current bbox to contain also the passed box.
+        *  Adding a null bounding box does nothing
+        */
+        void Add(Box3<BoxScalarType> const & b)
+        {
+            if (b.IsNull()) return; // Adding a null bbox should do nothing
+            if (IsNull()) *this = b;
+            else
+            {
+                if (min.X() > b.min.X()) min.X() = b.min.X();
+                if (min.Y() > b.min.Y()) min.Y() = b.min.Y();
+                if (min.Z() > b.min.Z()) min.Z() = b.min.Z();
+
+                if (max.X() < b.max.X()) max.X() = b.max.X();
+                if (max.Y() < b.max.Y()) max.Y() = b.max.Y();
+                if (max.Z() < b.max.Z()) max.Z() = b.max.Z();
+            }
+        }
+        /** Modify the current bbox to contain also the passed point
+        */
+        void Add(const Point3<BoxScalarType> & p)
+        {
+            if (IsNull()) Set(p);
+            else
+            {
+                if (min.X() > p.X()) min.X() = p.X();
+                if (min.Y() > p.Y()) min.Y() = p.Y();
+                if (min.Z() > p.Z()) min.Z() = p.Z();
+
+                if (max.X() < p.X()) max.X() = p.X();
+                if (max.Y() < p.Y()) max.Y() = p.Y();
+                if (max.Z() < p.Z()) max.Z() = p.Z();
+            }
+        }
+
+        void Intersect(const Box3<BoxScalarType> & b)
+        {
+            if (min.X() < b.min.X()) min.X() = b.min.X();
+            if (min.Y() < b.min.Y()) min.Y() = b.min.Y();
+            if (min.Z() < b.min.Z()) min.Z() = b.min.Z();
+
+            if (max.X() > b.max.X()) max.X() = b.max.X();
+            if (max.Y() > b.max.Y()) max.Y() = b.max.Y();
+            if (max.Z() > b.max.Z()) max.Z() = b.max.Z();
+
+            if (min.X() > max.X() || min.Y() > max.Y() || min.Z() > max.Z()) SetNull();
+        }
+
+        /** true if the point belong to the open box (open on the max side)
+        * e.g. if p in [min,max)
+        */
+        bool IsInEx(Point3<BoxScalarType> const & p) const
+        {
+            return (
+                min.X() <= p.X() && p.X() < max.X() &&
+                min.Y() <= p.Y() && p.Y() < max.Y() &&
+                min.Z() <= p.Z() && p.Z() < max.Z()
+                );
+        }
+
+        bool IsNull() const { return min.X() > max.X() || min.Y() > max.Y() || min.Z() > max.Z(); }
+
+        BoxScalarType Diag() const
+        {
+            return Distance(min, max);
+        }
+
+    }; // end class definition
+
+
+    typedef Box3<int>	 Box3i;
+    typedef Box3<float>  Box3f;
+
+
+    /*@}*/
+
+    /** \addtogroup space */
+    /*@{*/
+    /**
+    Templated class for 3D segment.
+    This is the class for a segment in 3D space. A Segment is stored just as its two extrema (Point3).
+    @param SegmentScalarType (template parameter) Specifies the type of scalar used to represent coords.
+    */
+    template <class SegmentScalarType >
+    class Segment3
+    {
+    public:
+
+        /// The scalar type
+        typedef SegmentScalarType ScalarType;
+
+        /// The point type
+        typedef Point3<SegmentScalarType> PointType;
+
+        /// The point type
+        typedef Segment3<SegmentScalarType> SegmentType;
+
+    private:
+
+        /// _extrema
+        PointType _p0, _p1;
+
+    public:
+
+        /// Members to access either extrema
+        inline const PointType &P0() const { return _p0; }
+        inline const PointType &P1() const { return _p1; }
+
+        /// The empty constructor
+        Segment3() {};
+        /// The (a,b) constructor
+        Segment3(const PointType &a, const PointType &b) { _p0 = a; _p1 = b; };
+
+        /// return the middle point
+        inline PointType MidPoint() const
+        {
+            return (_p0 + _p1) / ScalarType(2.0);
+        }
+
+    }; // end class definition
+
+    typedef Segment3<float>  Segment3f;
+
+
+    /*
+    * Computes the minimum distance between a segment and a point
+    * @param[in] segment	The input segment
+    * @param[in] p				The input point
+    * @param[in] clos			The closest point
+    * @param[in] dist The distance
+    */
+    template <class ScalarType>
+    void SegmentPointDistance(Segment3<ScalarType> s,
+        const Point3<ScalarType> & p,
+        Point3< ScalarType > &clos,
+        ScalarType &dist)
+    {
+        SegmentPointSquaredDistance(s, p, clos, dist);
+        dist = sqrt(dist);
+    }
+
+
+    /*
+    * Computes the minimum distance between a segment and a point
+    * @param[in] segment	The input segment
+    * @param[in] p				The input point
+    * @param[in] clos			The closest point
+    * @param[in] sqr_dist The squared distance
+    */
+    template <class ScalarType>
+    void SegmentPointSquaredDistance(const Segment3<ScalarType> &s,
+        const Point3<ScalarType> & p,
+        Point3< ScalarType > &closest,
+        ScalarType &sqr_dist)
+    {
+        Point3<ScalarType> e = s.P1() - s.P0();
+        ScalarType eSquaredNorm = e.SquaredNorm();
+        if (eSquaredNorm < std::numeric_limits<ScalarType>::min())
+        {
+            closest = s.MidPoint();
+            sqr_dist = SquaredDistance(closest, p);
+        }
+        else
+        {
+            ScalarType  t = ((p - s.P0())*e) / eSquaredNorm;
+            if (t < 0)      t = 0;
+            else if (t > 1) t = 1;
+            closest = s.P0() + e*t;
+            sqr_dist = SquaredDistance(p, closest);
+            assert(!math::IsNAN(sqr_dist));
+        }
+    }
+
+    /** \addtogroup space */
+    /*@{*/
+    /**
+    Templated class for 2D planes in 3D spaces.
+    This is the class for infinite planes in 3D space. A Plane is stored just as a Point3 and a scalar:
+    * a direction (not necessarily normalized),
+    * an offset from the origin
+
+    Just to be clear, given a point P on a plane it always holds:
+
+    plane.Direction().dot(P) == plane.Offset()
+
+
+    @param T (template parameter) Specifies the type of scalar used to represent coords.
+    @param NORM: if on, the direction is always Normalized
+    */
+    template <class T, bool NORM = true> class Plane3 {
+    public:
+        typedef T ScalarType;
+        typedef Point3<T> PointType;
+
+    private:
+        /// Distance
+        ScalarType _offset;
+        ///Direction (not necessarily normalized unless NORM is true)
+        PointType _dir;
+
+    public:
+        //@{
+        /** @name Constructors
+        **/
+        /// The empty constructor
+        Plane3() {}
+        /// The (distance, direction) constructor
+        Plane3(const ScalarType &dist, const PointType &dir) { Set(dist, dir); }
+
+
+        //@{
+        /** @name Members to access the distance or direction
+        Direction() cannot be assigned directly.
+        Use SetDirection() or Set() instead. This is mandatory to make possible the automatic autonormalization template mechanism.
+        Note that if you have to set both direction and offset it can be more efficient to set them toghether
+        **/
+        const ScalarType &Offset() const { return _offset; }
+        ScalarType &Offset() { return _offset; }
+        /// sets the origin
+        void SetOffset(const ScalarType &o) { _offset = o; }
+
+        const PointType &Direction() const { return _dir; }
+
+
+        /// Function to normalize direction
+        void Normalize() {
+            _dir.Normalize();
+        }
+
+        /// Calculates the plane passing through a point and the normal (Rename this method
+        inline void Init(const PointType &p0, const PointType &norm) {
+            _dir = norm;
+            if (NORM) Normalize();
+            _offset = p0.dot(_dir);
+        }
+    };	// end class Plane3
+
+    typedef Plane3<float>  Plane3f;
+    typedef Plane3<double> Plane3d;
+
+    ///Distance plane - point and vv. (Move these function to somewhere else)
+    template<class T> T SignedDistancePlanePoint(const Plane3<T, true> & plane, const Point3<T> & point)
+    {
+        return plane.Direction().dot(point) - plane.Offset();
     }
 }

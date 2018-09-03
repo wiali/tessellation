@@ -11,7 +11,6 @@ class CFaceO;
 
 // Declaration of the semantic of the used types
 class CUsedTypesO: public tessellation::UsedTypes < tessellation::Use<CVertexO>::AsVertexType,
-    tessellation::Use<CEdgeO   >::AsEdgeType,
     tessellation::Use<CFaceO  >::AsFaceType >{};
 
 
@@ -29,22 +28,12 @@ class CVertexO  : public tessellation::Vertex< CUsedTypesO,
 >{    
 };
 
-
-// The Main Edge Class
-class CEdgeO : public tessellation::Edge<CUsedTypesO,
-    tessellation::edge::BitFlags,          /*  4b */
-    tessellation::edge::EVAdj,
-    tessellation::edge::EEAdj
->{
-};
-
 // Each face needs 32 byte, on 32bit arch. and 48 byte on 64bit arch.
 class CFaceO : public tessellation::Face<  CUsedTypesO,
     tessellation::face::InfoOcf,              /* 4b */
     tessellation::face::VertexRef,  /*12b */
     tessellation::face::BitFlags,             /* 4b */
     tessellation::face::Normal3f,             /*12b */
-    tessellation::face::Color4bOcf,           /* 0b */
     tessellation::face::FFAdjOcf,             /* 0b */
     tessellation::face::VFAdjOcf,             /* 0b */
     tessellation::face::MarkOcf
@@ -53,9 +42,6 @@ class CFaceO : public tessellation::Face<  CUsedTypesO,
 
 class CMeshO  : public tessellation::tri::TriMesh<tessellation::vertex::vector_ocf<CVertexO>, tessellation::face::vector_ocf<CFaceO> >
 {
-public:
-    int sfn;    //The number of selected faces.
-    int svn;    //The number of selected vertices.
 };
 
 #endif

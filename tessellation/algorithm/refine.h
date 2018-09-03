@@ -288,22 +288,11 @@ namespace tessellation
                         //  		nf[i]->C()=(*fi).cC();
                     }
 
-
-                    if(tri::HasPerWedgeTexCoord(m))
-                        for(i = 0; i < 3; ++i)
-                        {
-                            wtt[i] = (*fi).WT(i);
-                            wtt[3 + i] = mid.WedgeInterp((*fi).WT(i), (*fi).WT((i + 1) % 3));
-                        }
-
                     int orgflag =	(*fi).Flags();
                     for(i = 0; i < SplitTab[ind].TriNum; ++i)
                         for(j = 0; j < 3; ++j)
                         {
                             (*nf[i]).V(j) = &*vv[SplitTab[ind].TV[i][j]];
-
-                            if(tri::HasPerWedgeTexCoord(m)) //analogo ai vertici...
-                                (*nf[i]).WT(j) = wtt[SplitTab[ind].TV[i][j]];
 
                             assert((*nf[i]).V(j) != 0);
                             if(SplitTab[ind].TE[i][j] != 3)
@@ -323,11 +312,6 @@ namespace tessellation
                         // swap the last two triangles
                         (*nf[2]).V(1) = (*nf[1]).V(0);
                         (*nf[1]).V(1) = (*nf[2]).V(0);
-                        if(tri::HasPerWedgeTexCoord(m))  //swap also textures coordinates
-                        {
-                            (*nf[2]).WT(1) = (*nf[1]).WT(0);
-                            (*nf[1]).WT(1) = (*nf[2]).WT(0);
-                        }
 
                         if((*nf[1]).IsB(0)) (*nf[2]).SetB(1);
                         else (*nf[2]).ClearB(1);

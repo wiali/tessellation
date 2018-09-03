@@ -166,15 +166,6 @@ namespace tessellation
 
             }
 
-            template<class FL_TYPE>
-            TexCoord2<FL_TYPE, 1> WedgeInterp(TexCoord2<FL_TYPE, 1> &t0, TexCoord2<FL_TYPE, 1> &t1)
-            {
-                TexCoord2<FL_TYPE, 1> tmp;
-                tmp.n() = t0.n();
-                tmp.t() = (t0.t() + t1.t()) / 2.0;
-                return tmp;
-            }
-
             inline void setValenceAttr(ValenceAttr *valence)
             {
                 this->valence = valence;

@@ -24,9 +24,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="linalgebra.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="meshio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,16 +33,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithm\box3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="algorithm\closest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="algorithm\complex_base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="algorithm\grid_closest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="algorithm\grid_static_ptr.h">

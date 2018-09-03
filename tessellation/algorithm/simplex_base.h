@@ -1562,12 +1562,6 @@ namespace tessellation
                 return false;
             }
 
-            static bool HasWedgeTexCoord()
-            {
-                return false;
-            }
-
-
             typedef int VFAdjType;
             typename T::FacePointer &VFp(int)
             {
@@ -1669,14 +1663,8 @@ namespace tessellation
         public:
             vector_ocf() :std::vector<VALUE_TYPE>()
             {
-                _ColorEnabled = false;
-                CurvatureDirEnabled = false;
                 MarkEnabled = false;
                 NormalEnabled = false;
-                QualityEnabled = false;
-                WedgeTexEnabled = false;
-                WedgeColorEnabled = false;
-                WedgeNormalEnabled = false;
                 VFAdjacencyEnabled = false;
                 FFAdjacencyEnabled = false;
             }
@@ -1705,15 +1693,10 @@ namespace tessellation
                 BaseType::push_back(v);
                 BaseType::back()._ovp = this;
                 if (QualityEnabled)     QV.push_back(0);
-                if (_ColorEnabled)       CV.push_back(vcg::Color4b(vcg::Color4b::White));
                 if (MarkEnabled)        MV.push_back(0);
                 if (NormalEnabled)      NV.push_back(typename VALUE_TYPE::NormalType());
-                if (CurvatureDirEnabled)    CDV.push_back(typename VALUE_TYPE::CurvatureDirType());
                 if (VFAdjacencyEnabled) AV.push_back(AdjTypePack());
                 if (FFAdjacencyEnabled) AF.push_back(AdjTypePack());
-                if (WedgeTexEnabled)    WTV.push_back(WedgeTexTypePack());
-                if (WedgeColorEnabled)  WCV.push_back(WedgeColorTypePack());
-                if (WedgeNormalEnabled) WNV.push_back(WedgeNormalTypePack());
             }
             void pop_back();
             virtual void resize(size_t _size)
@@ -1725,8 +1708,6 @@ namespace tessellation
                     advance(firstnew, oldsize);
                     _updateOVP(firstnew, (*this).end());
                 }
-                if (QualityEnabled)     QV.resize(_size, 0);
-                if (_ColorEnabled)       CV.resize(_size);
                 if (MarkEnabled)        MV.resize(_size);
                 if (VFAdjacencyEnabled) AV.resize(_size);
                 if (FFAdjacencyEnabled) AF.resize(_size);
@@ -1736,16 +1717,10 @@ namespace tessellation
             {
                 BaseType::reserve(_size);
 
-                if (QualityEnabled)     QV.reserve(_size);
-                if (_ColorEnabled)      CV.reserve(_size);
                 if (MarkEnabled)        MV.reserve(_size);
                 if (NormalEnabled)      NV.reserve(_size);
-                if (CurvatureDirEnabled)CDV.reserve(_size);
                 if (VFAdjacencyEnabled) AV.reserve(_size);
                 if (FFAdjacencyEnabled) AF.reserve(_size);
-                if (WedgeTexEnabled)    WTV.reserve(_size);
-                if (WedgeColorEnabled)  WCV.reserve(_size);
-                if (WedgeNormalEnabled) WNV.reserve(_size);
 
                 if (BaseType::empty()) return;
 
@@ -1771,12 +1746,8 @@ namespace tessellation
                 if (_ColorEnabled)       assert(CV.size() == newFaceIndex.size());
                 if (MarkEnabled)        assert(MV.size() == newFaceIndex.size());
                 if (NormalEnabled)      assert(NV.size() == newFaceIndex.size());
-                if (CurvatureDirEnabled)assert(CDV.size() == newFaceIndex.size());
                 if (VFAdjacencyEnabled) assert(AV.size() == newFaceIndex.size());
                 if (FFAdjacencyEnabled) assert(AF.size() == newFaceIndex.size());
-                if (WedgeTexEnabled)    assert(WTV.size() == newFaceIndex.size());
-                if (WedgeColorEnabled)  assert(WCV.size() == newFaceIndex.size());
-                if (WedgeNormalEnabled) assert(WNV.size() == newFaceIndex.size());
 
                 for (i = 0; i < newFaceIndex.size(); ++i)
                 {
@@ -1787,12 +1758,8 @@ namespace tessellation
                         if (_ColorEnabled)        CV[newFaceIndex[i]] = CV[i];
                         if (MarkEnabled)         MV[newFaceIndex[i]] = MV[i];
                         if (NormalEnabled)       NV[newFaceIndex[i]] = NV[i];
-                        if (CurvatureDirEnabled) CDV[newFaceIndex[i]] = CDV[i];
                         if (VFAdjacencyEnabled)  AV[newFaceIndex[i]] = AV[i];
                         if (FFAdjacencyEnabled)  AF[newFaceIndex[i]] = AF[i];
-                        if (WedgeTexEnabled)    WTV[newFaceIndex[i]] = WTV[i];
-                        if (WedgeColorEnabled)  WCV[newFaceIndex[i]] = WCV[i];
-                        if (WedgeNormalEnabled) WNV[newFaceIndex[i]] = WNV[i];
                     }
                 }
 
@@ -1800,12 +1767,8 @@ namespace tessellation
                 if (_ColorEnabled)       CV.resize(BaseType::size());
                 if (MarkEnabled)         MV.resize(BaseType::size());
                 if (NormalEnabled)       NV.resize(BaseType::size());
-                if (CurvatureDirEnabled) CDV.resize(BaseType::size());
                 if (VFAdjacencyEnabled)  AV.resize(BaseType::size());
                 if (FFAdjacencyEnabled)  AF.resize(BaseType::size());
-                if (WedgeTexEnabled)    WTV.resize(BaseType::size());
-                if (WedgeColorEnabled)  WCV.resize(BaseType::size());
-                if (WedgeNormalEnabled) WNV.resize(BaseType::size());
             }
 
             ////////////////////////////////////////
@@ -1895,20 +1858,13 @@ namespace tessellation
 
         public:
             std::vector<typename VALUE_TYPE::NormalType> NV;
-            std::vector<typename VALUE_TYPE::ColorType> CV;
             std::vector<int> MV;
             std::vector<float> QV;
             std::vector<struct AdjTypePack> AV;
             std::vector<struct AdjTypePack> AF;
 
-            bool _ColorEnabled;
-            bool CurvatureDirEnabled;
             bool MarkEnabled;
             bool NormalEnabled;
-            bool QualityEnabled;
-            bool WedgeColorEnabled;
-            bool WedgeNormalEnabled;
-            bool WedgeTexEnabled;
             bool VFAdjacencyEnabled;
             bool FFAdjacencyEnabled;
         }; // end class vector_ocf
@@ -1932,14 +1888,8 @@ namespace tessellation
             template <class RightFaceType>
             void ImportData(const RightFaceType & rightF) { T::ImportData(rightF); }
 
-            static bool HasColorOcf() { return false; }
-            static bool HasCurvatureDirOcf() { return false; }
             static bool HasMarkOcf() { return false; }
             static bool HasNormalOcf() { return false; }
-            static bool HasQualityOcf() { return false; }
-            static bool HasWedgeTexCoordOcf() { return false; }
-            static bool HasWedgeColorOcf() { return false; }
-            static bool HasWedgeNormalOcf() { return false; }
             static bool HasFFAdjacencyOcf() { return false; }
             static bool HasVFAdjacencyOcf() { return false; }
 
@@ -2508,18 +2458,6 @@ namespace tessellation
             fEdge[1] = f.cP(2); fEdge[1] -= f.cP(1);
             fEdge[2] = f.cP(0); fEdge[2] -= f.cP(2);
 
-            /*
-            This piece of code is part of the EdgePlane initialization structure: note that the edges are scaled!.
-
-            if(nx>ny && nx>nz) { f.Flags() |= FaceType::NORMX; d = 1/f.Plane().Direction()[0]; }
-            else if(ny>nz)     { f.Flags() |= FaceType::NORMY; d = 1/f.Plane().Direction()[1]; }
-            else               { f.Flags() |= FaceType::NORMZ; d = 1/f.Plane().Direction()[2]; }
-            f.Edge(0)*=d; f.Edge(1)*=d;f.Edge(2)*=d;
-
-            So we must apply the same scaling according to the plane orientation, eg in the case of NORMX
-            scaleFactor= 1/fPlane.Direction()[0];
-            fEdge[0]*=d; fEdge[1]*=d;fEdge[2]*=d;
-            */
 
             int bestAxis;
             if (fabs(f.cN()[0]) > fabs(f.cN()[1]))
@@ -2561,13 +2499,7 @@ namespace tessellation
                     if (dist > b2) { dist = b2; return true; }
                     else return false;
                 }
-                // sono tutti e tre > 0 quindi dovrebbe essere dentro;
-                // per sicurezza se il piu' piccolo dei tre e' < epsilon (scalato rispetto all'area della faccia
-                // per renderlo dimension independent.) allora si usa ancora la distanza punto
-                // segmento che e' piu robusta della punto piano, e si fa dalla parte a cui siamo piu'
-                // vicini (come prodotto vettore)
-                // Nota: si potrebbe rendere un pochino piu' veloce sostituendo Area()
-                // con il prodotto vettore dei due edge in 2d lungo il piano migliore.
+
                 if ((b = math::Min<ScalarType>(b0, b1, b2)) < EPS*DoubleArea(f))
                 {
                     ScalarType bt;
@@ -2955,39 +2887,6 @@ namespace tessellation
     };
 
 
-    /*
-
-    These are the three main classes that are used by the library user to define its own Facees.
-    The user MUST specify the names of all the type involved in a generic complex.
-    so for example when defining a Face of a trimesh you must know the name of the type of the edge and of the face.
-    Typical usage example:
-
-    A Face with coords, flags and normal for use in a standard trimesh:
-
-    class MyFaceNf   : public FaceSimp2< VertProto, EdgeProto, MyFaceNf, face::Flag, face::Normal3f  > {};
-
-
-    A Face with coords, and normal for use in a tetrahedral mesh AND in a standard trimesh:
-
-    class TetraFace   : public FaceSimp3< VertProto, EdgeProto, TetraFace, TetraProto, face::Coord3d, face::Normal3f  > {};
-
-
-    A summary of the components that can be added to a face (see components.h for details):
-
-    VertexRef
-    NormalFromVert, WedgeNormal
-    Normal3s, Normal3f, Normal3d
-    WedgeTexCoord2s, WedgeTexCoord2f, WedgeTexCoord2d
-    BitFlags
-    WedgeColor, Color4b
-    Qualitys, Qualityf, Qualityd
-    Mark                                            //Incremental mark (int)
-    VFAdj                                           //Topology vertex face adjacency
-    (pointers to next face in the ring of the vertex
-    FFAdj                                           //topology: face face adj
-    pointers to adjacent faces
-
-    */
 
     template < class UserTypes,
         template <typename> class A = DefaultDeriver, template <typename> class B = DefaultDeriver,
