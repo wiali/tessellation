@@ -21,19 +21,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="meshio.hpp">
+    <ClInclude Include="tessellation\include\complex_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithm\complex_base.h">
+    <ClInclude Include="tessellation\include\meshio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithm\simplex_base.h">
+    <ClInclude Include="tessellation\include\simplex_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithm\space_base.h">
+    <ClInclude Include="tessellation\include\space_base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="algorithm\split_triangle.h">
+    <ClInclude Include="tessellation\include\split_triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tessellation\include\tessellation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
