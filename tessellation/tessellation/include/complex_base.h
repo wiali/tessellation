@@ -294,15 +294,12 @@ namespace tessellation
                 return fn;
             }
 
-            std::vector<std::string> textures;
-
             int attrn;
 
             Box3<typename TriMesh::VertexType::CoordType::ScalarType> bbox;
 
             std::set< PointerToAttribute > vert_attr;
             std::set< PointerToAttribute > face_attr;
-            std::set< PointerToAttribute > mesh_attr;
 
             template <class ATTR_TYPE, class CONT>
             class AttributeHandle
@@ -347,31 +344,7 @@ namespace tessellation
                 PerFaceAttributeHandle() : AttributeHandle<ATTR_TYPE, FaceContainer>() {}
                 PerFaceAttributeHandle(void* ah, const int& n) : AttributeHandle<ATTR_TYPE, FaceContainer>(ah, n) {}
             };
-
-            template <class ATTR_TYPE>
-            class PerMeshAttributeHandle
-            {
-            public:
-                PerMeshAttributeHandle()
-                {
-                    _handle = NULL;
-                }
-                PerMeshAttributeHandle(void* ah, const int& n): _handle ( (Attribute<ATTR_TYPE>*)ah ), n_attr(n) {}
-                PerMeshAttributeHandle operator = ( const PerMeshAttributeHandle& pva)
-                {
-                    _handle = (Attribute<ATTR_TYPE>*)pva._handle;
-                    n_attr = pva.n_attr;
-                    return (*this);
-                }
-
-                Attribute<ATTR_TYPE>* _handle;
-                int n_attr;
-                ATTR_TYPE& operator ()()
-                {
-                    return *((Attribute<ATTR_TYPE>*)_handle)->attribute;
-                }
-            };
-
+            
         public:
             TriMesh()
             {
@@ -418,10 +391,6 @@ namespace tessellation
         {
             return VertexType::HasVFAdjacency();
         }
-        template < class VertexType> bool VertexVectorHasVEAdjacency(const std::vector<VertexType>&)
-        {
-            return VertexType::HasVEAdjacency();
-        }
 
         template < class FaceType> bool FaceVectorHasVFAdjacency(const std::vector<FaceType>&)
         {
@@ -431,10 +400,6 @@ namespace tessellation
         template < class TriMeshType> bool HasPerVertexVFAdjacency(const TriMeshType& m)
         {
             return tri::VertexVectorHasVFAdjacency(m.vert);
-        }
-        template < class TriMeshType> bool HasPerVertexVEAdjacency(const TriMeshType& m)
-        {
-            return tri::VertexVectorHasVEAdjacency(m.vert);
         }
 
         template < class TriMeshType> bool HasPerFaceVFAdjacency(const TriMeshType& m)
@@ -460,10 +425,7 @@ namespace tessellation
         {
             return FaceType::HasNormal();
         }
-        template < class FaceType> bool FaceVectorHasPerFaceColor(const std::vector<FaceType>&)
-        {
-            return FaceType::  ();
-        }
+
         template < class FaceType> bool FaceVectorHasPerFaceMark(const std::vector<FaceType>&)
         {
             return FaceType::HasMark();
@@ -508,10 +470,7 @@ namespace tessellation
         {
             return tri::FaceVectorHasPerFaceFlags(m.face);
         }
-        template < class TriMeshType> bool HasPerFaceColor(const TriMeshType& m)
-        {
-            return tri::FaceVectorHasPerFaceColor(m.face);
-        }
+
         template < class TriMeshType> bool HasFFAdjacency(const TriMeshType& m)
         {
             return tri::FaceVectorHasFFAdjacency(m.face);
@@ -529,12 +488,6 @@ namespace tessellation
         {
             return tri::FaceVectorHasVFAdjacency(m.face)
                    && tri::VertexVectorHasVFAdjacency(m.vert);
-        }
-
-        template < class  CType0, class CType1>
-        bool HasVHAdjacency(const TriMesh < CType0, CType1>& /*m*/)
-        {
-            return TriMesh < CType0 , CType1>::VertContainer::value_type::HasVHAdjacency();
         }
 
         template < class TriMeshType> bool HasPerFaceMark(const TriMeshType& m)
@@ -569,27 +522,6 @@ namespace tessellation
             if (!tri::HasFFAdjacency(m))
             {
                 throw tessellation::MissingComponentException("FFAdjacency");
-            }
-        }
-        template <class MeshType> void RequireEEAdjacency(MeshType& m)
-        {
-            if (!tri::HasEEAdjacency(m))
-            {
-                throw tessellation::MissingComponentException("EEAdjacency");
-            }
-        }
-        template <class MeshType> void RequireFEAdjacency(MeshType& m)
-        {
-            if (!tri::HasFEAdjacency(m))
-            {
-                throw tessellation::MissingComponentException("FEAdjacency");
-            }
-        }
-        template <class MeshType> void RequireFHAdjacency(MeshType& m)
-        {
-            if (!tri::HasFHAdjacency(m))
-            {
-                throw tessellation::MissingComponentException("FHAdjacency");
             }
         }
 
@@ -634,26 +566,6 @@ namespace tessellation
         size_t Index(MeshType& m, const typename MeshType::FaceType* fp)
         {
             return fp - &*m.face.begin();
-        }
-
-        template <class MeshType, class ATTR_CONT>
-        void ReorderAttribute(ATTR_CONT& c, std::vector<size_t>& newVertIndex, MeshType& /* m */)
-        {
-            typename std::set<typename MeshType::PointerToAttribute>::iterator ai;
-            for (ai = c.begin(); ai != c.end(); ++ai)
-            {
-                ((typename MeshType::PointerToAttribute)(*ai)).Reorder(newVertIndex);
-            }
-        }
-
-        template <class MeshType, class ATTR_CONT>
-        void ResizeAttribute(ATTR_CONT& c, size_t sz, MeshType& /*m*/)
-        {
-            typename std::set<typename MeshType::PointerToAttribute>::iterator ai;
-            for (ai = c.begin(); ai != c.end(); ++ai)
-            {
-                ((typename MeshType::PointerToAttribute)(*ai)).Resize(sz);
-            }
         }
 
         template <class MeshType>
@@ -946,178 +858,6 @@ namespace tessellation
                         m.face_attr.erase(i);
                         return;
                     }
-            }
-
-            static void CompactFaceVector(MeshType& m)
-            {
-                PointerUpdater<FacePointer>  pu;
-                CompactFaceVector(m, pu);
-            }
-
-            static void CompactFaceVector(MeshType& m, PointerUpdater<FacePointer>& pu)
-            {
-                if (m.fn == (int)m.face.size())
-                {
-                    return;
-                }
-                pu.remap.resize(m.face.size(), std::numeric_limits<size_t>::max());
-                size_t pos = 0;
-                for (size_t i = 0; i < m.face.size(); ++i)
-                {
-                    if (!m.face[i].IsD())
-                    {
-                        if (pos != i)
-                        {
-                            m.face[pos].ImportData(m.face[i]);
-                            if (FaceType::HasPolyInfo())
-                            {
-                                m.face[pos].Dealloc();
-                                m.face[pos].Alloc(m.face[i].VN());
-                            }
-                            for (int j = 0; j < m.face[i].VN(); ++j)
-                            {
-                                m.face[pos].V(j) = m.face[i].V(j);
-                            }
-                            if (HasVFAdjacency(m))
-                                for (int j = 0; j < m.face[i].VN(); ++j)
-                                {
-                                    if (m.face[i].IsVFInitialized(j))
-                                    {
-                                        m.face[pos].VFp(j) = m.face[i].cVFp(j);
-                                        m.face[pos].VFi(j) = m.face[i].cVFi(j);
-                                    }
-                                    else
-                                    {
-                                        m.face[pos].VFClear(j);
-                                    }
-                                }
-                            if (HasFFAdjacency(m))
-                                for (int j = 0; j < m.face[i].VN(); ++j)
-                                {
-                                    m.face[pos].FFp(j) = m.face[i].cFFp(j);
-                                    m.face[pos].FFi(j) = m.face[i].cFFi(j);
-                                }
-                        }
-                        pu.remap[i] = pos;
-                        ++pos;
-                    }
-                }
-                assert((int)pos == m.fn);
-                ReorderAttribute(m.face_attr, pu.remap, m);
-                FacePointer fbase = &m.face[0];
-                if (HasVFAdjacency(m))
-                {
-                    for (VertexIterator vi = m.vert.begin(); vi != m.vert.end(); ++vi)
-                        if (!(*vi).IsD())
-                        {
-                            if ((*vi).IsVFInitialized() && (*vi).VFp() != 0)
-                            {
-                                size_t oldIndex = (*vi).cVFp() - fbase;
-                                assert(fbase <= (*vi).cVFp() && oldIndex < pu.remap.size());
-                                (*vi).VFp() = fbase + pu.remap[oldIndex];
-                            }
-                        }
-                }
-                pu.oldBase = &m.face[0];
-                pu.oldEnd = &m.face.back() + 1;
-                for (size_t i = m.fn; i < m.face.size(); ++i)
-                {
-                    m.face[i].Dealloc();
-                }
-                m.face.resize(m.fn);
-                pu.newBase = (m.face.empty()) ? 0 : &m.face[0];
-                pu.newEnd = (m.face.empty()) ? 0 : &m.face.back() + 1;
-                ResizeAttribute(m.face_attr, m.fn, m);
-                for (FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)
-                    if (!(*fi).IsD())
-                    {
-                        if (HasVFAdjacency(m))
-                            for (int i = 0; i < (*fi).VN(); ++i)
-                                if ((*fi).IsVFInitialized(i) && (*fi).VFp(i) != 0)
-                                {
-                                    size_t oldIndex = (*fi).VFp(i) - fbase;
-                                    assert(fbase <= (*fi).VFp(i) && oldIndex < pu.remap.size());
-                                    (*fi).VFp(i) = fbase + pu.remap[oldIndex];
-                                }
-                        if (HasFFAdjacency(m))
-                            for (int i = 0; i < (*fi).VN(); ++i)
-                                if ((*fi).cFFp(i) != 0)
-                                {
-                                    size_t oldIndex = (*fi).FFp(i) - fbase;
-                                    assert(fbase <= (*fi).FFp(i) && oldIndex < pu.remap.size());
-                                    (*fi).FFp(i) = fbase + pu.remap[oldIndex];
-                                }
-                    }
-            }
-
-            static void CompactVertexVector(MeshType& m)
-            {
-                PointerUpdater<VertexPointer>  pu;
-                CompactVertexVector(m, pu);
-            }
-
-            static void CompactVertexVector(MeshType& m, PointerUpdater<VertexPointer>& pu)
-            {
-                if (m.vn == (int)m.vert.size())
-                {
-                    return;
-                }
-                pu.remap.resize(m.vert.size(), std::numeric_limits<size_t>::max());
-                size_t pos = 0;
-                size_t i = 0;
-                for (i = 0; i < m.vert.size(); ++i)
-                {
-                    if (!m.vert[i].IsD())
-                    {
-                        pu.remap[i] = pos;
-                        ++pos;
-                    }
-                }
-                assert((int)pos == m.vn);
-                PermutateVertexVector(m, pu);
-            }
-
-            static void PermutateVertexVector(MeshType& m, PointerUpdater<VertexPointer>& pu)
-            {
-                if (m.vert.empty())
-                {
-                    return;
-                }
-                for (size_t i = 0; i < m.vert.size(); ++i)
-                {
-                    if (pu.remap[i] < size_t(m.vn))
-                    {
-                        assert(!m.vert[i].IsD());
-                        m.vert[pu.remap[i]].ImportData(m.vert[i]);
-                        if (HasVFAdjacency(m))
-                        {
-                            if (m.vert[i].IsVFInitialized())
-                            {
-                                m.vert[pu.remap[i]].VFp() = m.vert[i].cVFp();
-                                m.vert[pu.remap[i]].VFi() = m.vert[i].cVFi();
-                            }
-                            else
-                            {
-                                m.vert[pu.remap[i]].VFClear();
-                            }
-                        }
-                    }
-                }
-                ReorderAttribute(m.vert_attr, pu.remap, m);
-                pu.oldBase = &m.vert[0];
-                pu.oldEnd = &m.vert.back() + 1;
-                m.vert.resize(m.vn);
-                pu.newBase = (m.vert.empty()) ? 0 : &m.vert[0];
-                pu.newEnd = (m.vert.empty()) ? 0 : &m.vert.back() + 1;
-                ResizeAttribute(m.vert_attr, m.vn, m);
-                for (FaceIterator fi = m.face.begin(); fi != m.face.end(); ++fi)
-                    if (!(*fi).IsD())
-                        for (int i = 0; i < fi->VN(); ++i)
-                        {
-                            size_t oldIndex = (*fi).V(i) - pu.oldBase;
-                            assert(pu.oldBase <= (*fi).V(i) && oldIndex < pu.remap.size());
-                            (*fi).V(i) = pu.newBase + pu.remap[oldIndex];
-                        }
             }
 
         };

@@ -221,8 +221,6 @@ namespace tessellation
                 ++fi;
             }
 
-            tri::Allocator<CMeshO>::CompactFaceVector(mesh_dest);
-            tri::Allocator<CMeshO>::CompactVertexVector(mesh_dest);
             updateDataMask(mesh_dest, MM_FACEFACETOPO);
             tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh_dest);
             updateDataMask(mesh_dest, MM_VERTTEXCOORD);
@@ -236,8 +234,6 @@ namespace tessellation
             CMeshO mesh_old;
             copyMesh(mesh, mesh_old);
 
-            tri::Allocator<CMeshO>::CompactFaceVector(mesh);
-            tri::Allocator<CMeshO>::CompactVertexVector(mesh);
             updateDataMask(mesh, MM_FACEFACETOPO);
             tri::UpdateFlags<CMeshO>::FaceBorderFromFF(mesh);
             updateDataMask(mesh, MM_VERTTEXCOORD);
