@@ -996,6 +996,163 @@ namespace tessellation
         return plane.Direction().dot(point) - plane.Offset();
     }
 
+    template<class T = float, int NMAX = 1>
+    class TexCoord2
+    {
+    public:
+        typedef Point2<T>  PointType;
+        typedef T ScalarType;
+
+    private:
+        PointType _t[NMAX];
+        short     _n[NMAX];
+
+    public:
+        TexCoord2(T u, T v)
+        {
+            if (NMAX > 0)
+            {
+                _n[0] = 0;
+            }
+            _t[0][0] = u;
+            _t[0][1] = v;
+        }
+        TexCoord2()
+        {
+            _t[0][0] = 2;
+            _t[0][1] = 2;
+            _n[0] = 0;
+        }
+
+        inline short& n()
+        {
+            return _n[0];
+        }
+        inline short n() const
+        {
+            return _n[0];
+        }
+
+        inline Point2<T>& t()
+        {
+            return _t[0];
+        }
+        inline Point2<T> t() const
+        {
+            return _t[0];
+        }
+
+        inline const PointType& P() const
+        {
+            return _t[0];
+        }
+        inline PointType& P()
+        {
+            return _t[0];
+        }
+
+        inline const PointType& P(const int i) const
+        {
+            assert(i > 0 && i < NMAX);
+            return _t[i];
+        }
+        inline PointType& P(const int i)
+        {
+            assert(i > 0 && i < NMAX);
+            return _t[i];
+        }
+
+        inline T& u()
+        {
+            return _t[0][0];
+        }
+        inline T& v()
+        {
+            return _t[0][1];
+        }
+        inline const T& u() const
+        {
+            return _t[0][0];
+        }
+        inline const T& v() const
+        {
+            return _t[0][1];
+        }
+
+        enum { n_coords = NMAX };
+    };
+
+    typedef TexCoord2<float> TexCoord2f;
+
+    template <class T> class BitFlags : public T
+    {
+    public:
+        BitFlags()
+        {
+            _flags = 0;
+        }
+        typedef int FlagType;
+        inline const int& Flags() const
+        {
+            return _flags;
+        }
+        inline int& Flags()
+        {
+            return _flags;
+        }
+        inline int cFlags() const
+        {
+            return _flags;
+        }
+
+        static bool HasFlags()
+        {
+            return true;
+        }
+
+    private:
+        int  _flags;
+    };
+
+    template <class A, class T> class Normal : public T
+    {
+    public:
+        typedef A NormalType;
+
+        inline const NormalType& N() const
+        {
+            return _norm;
+        }
+
+        inline NormalType& N()
+        {
+            return _norm;
+        }
+
+        inline NormalType cN() const
+        {
+            return _norm;
+        }
+
+        static bool HasNormal()
+        {
+            return true;
+        }
+
+    private:
+        NormalType _norm;
+    };
+
+    template <class T> class Normal3f : public Normal<Point3f, T>
+    {
+    public:
+        static void Name(std::vector<std::string>& name)
+        {
+            name.push_back(std::string("Normal3f"));
+            T::Name(name);
+        }
+    };
+
     template <class SCALARTYPE>
     class BasicGrid
     {

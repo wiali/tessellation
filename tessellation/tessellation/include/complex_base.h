@@ -974,11 +974,11 @@ namespace tessellation
     class CUsedTypesO : public tessellation::UsedTypes < tessellation::Use<CVertexO>::AsVertexType, tessellation::Use<CFaceO  >::AsFaceType > {};
 
     class CVertexO : public tessellation::Vertex<CUsedTypesO,
-        tessellation::vertex::InfoOcf, tessellation::vertex::Coord3f, tessellation::vertex::BitFlags,
-        tessellation::vertex::Normal3f, tessellation::vertex::VFAdjOcf, tessellation::vertex::TexCoordfOcf> {};
+        tessellation::vertex::InfoOcf, tessellation::vertex::Coord3f, tessellation::BitFlags,
+        tessellation::Normal3f, tessellation::vertex::VFAdjOcf, tessellation::vertex::TexCoordfOcf> {};
 
     class CFaceO : public tessellation::Face<CUsedTypesO, tessellation::face::InfoOcf,
-        tessellation::face::VertexRef, tessellation::face::BitFlags, tessellation::face::Normal3f,
+        tessellation::face::VertexRef, tessellation::BitFlags, tessellation::Normal3f,
         tessellation::face::FFAdjOcf, tessellation::face::VFAdjOcf,tessellation::face::MarkOcf> {};
 
     class CMeshO : public tessellation::tri::TriMesh<tessellation::vertex::vector_ocf<CVertexO>, tessellation::face::vector_ocf<CFaceO> >{};
